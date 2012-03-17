@@ -13,19 +13,60 @@ public class Odometer implements TimerListener {
 
 	private Timer timer;
 	private Robot robot;
-	private static Coordinates coords;
+	private Coordinates coords;
+	private double displacement; // variable to keep track of the robot's total displacement
+	// private Coordinates oldCoords ;
+
+	// odometer update period, in ms
+	private static final int ODOMETER_PERIOD = 25;
 
 	/**
-	* Constructor
-	*
-	* @author Mouhyi
-	*/
+	 * Constructor
+	 * 
+	 * @author Mouhyi
+	 */
 	public Odometer(Robot robot) {
+
+		coords = Coordinates.getInstance();
+		// start timer
+		Timer timer = new Timer(ODOMETER_PERIOD, this);
+		timer.start();
+	}
+
+	/**
+	 * Recompute the odometer values using the displacement and heading changes
+	 * 
+	 * @author Mouhyi
+	 */
+	public void timedOut() {
+		double dTheta, dDisplacement;
+		double x, y, theta;
+		
+		// get cuurrent coords
+		x = coords.getX();
+		y = coords.getY();
+		theta = coords.getTheta();
+
+		dTheta = robot.getHeading() - theta; // ///
+		double dTheta2 = (dTheta < 3 || dTheta > 358) ? 0 : adjustAngle(dTheta); 		// ///   CHANGE!
+
+		dDisplacement = robot.getDisplacement() - displacement;
+		
+		// Formulas from Tutorial
+		x += dDisplacement * Math.cos( adjustAngle ( convertToRadians(theta + dTheta2 / 2) ) );			////
+		y += dDisplacement * Math.sin ( convertToRadians(theta + dTheta2 / 2) );							////
+		theta += dTheta;
+		theta = adjustAngle(theta);
+		displacement += dDisplacement;
+		
+		// update coordinates
+		coords.set(x, y, theta);
+
 	}
 
 	/**
 	 * method to stop the timerlistener
-	 *
+	 * 
 	 */
 	public void stop() {
 		if (this.timer != null)
@@ -34,19 +75,13 @@ public class Odometer implements TimerListener {
 
 	/**
 	 * method to start the timerlistener
-	 *
+	 * 
 	 */
 	public void start() {
 		if (this.timer != null)
 			this.timer.start();
 	}
-	
-	/*
-	 * Recompute the odometer values using the displacement and heading changes
-	 */
-	public void timedOut() {
-	}
-	
+
 	// static 'helper' methods
 	public static double fixDegAngle(double angle) {
 		if (angle < 0.0)
@@ -63,8 +98,20 @@ public class Odometer implements TimerListener {
 		else
 			return d - 360.0;
 	}
-	
-	public Robot getRobot(){
+
+	// This method converts angles is degrees to angles in radians
+	public static double convertToRadians(double angle) {
+		return (angle * Math.PI) / (180.0);
+	}
+
+	// Map theta to [0,360)
+	public static double adjustAngle(double angle) {
+		if (angle < 0.0)
+			angle = 360.0 + (angle % 360.0);
+		return angle % 360.0;
+	}
+
+	public Robot getRobot() {
 		return robot;
 	}
 

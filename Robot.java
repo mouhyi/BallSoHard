@@ -1,5 +1,6 @@
 import lejos.nxt.*;
 
+
 /**
 * This class contains general methods
 *
@@ -7,6 +8,8 @@ import lejos.nxt.*;
 */
 public class Robot {
 
+	private NXTRegulatedMotor leftMotor, rightMotor;
+	
 	/**
 	 * Constructor
 	 * @param lMotor The left motor of the robot.
@@ -26,8 +29,8 @@ public class Robot {
 	 * @author Mouhyi
 	 */
 	public double getDisplacement() {
-		return (leftMotor.getTachoCount() * LEFT_RADIUS + rightMotor
-				.getTachoCount() * RIGHT_RADIUS)
+		return (leftMotor.getTachoCount() * SystemConstants.LEFT_RADIUS +
+				rightMotor.getTachoCount() * SystemConstants.RIGHT_RADIUS)
 				* Math.PI / 360.0;
 	}
 
@@ -37,9 +40,9 @@ public class Robot {
 	 * @author Mouhyi
 	 */
 	public double getHeading() {
-		return (-leftMotor.getTachoCount() * LEFT_RADIUS + rightMotor
-				.getTachoCount() * RIGHT_RADIUS)
-				/ WIDTH;
+		return (-leftMotor.getTachoCount() * SystemConstants.LEFT_RADIUS +
+				rightMotor.getTachoCount() * SystemConstants.RIGHT_RADIUS)
+				/ SystemConstants.WIDTH;
 		// //// sign fixed
 	}
 
@@ -50,13 +53,13 @@ public class Robot {
 	public void setSpeeds(double forwardSpeed, double rotationSpeed) {
 		double leftSpeed, rightSpeed;
 
-		this.forwardSpeed = forwardSpeed;
-		this.rotationSpeed = rotationSpeed;
+		/*this.forwardSpeed = forwardSpeed;
+		this.rotationSpeed = rotationSpeed;*/
 
-		leftSpeed = (forwardSpeed - rotationSpeed * WIDTH * Math.PI / 360.0)
-				* 180.0 / (LEFT_RADIUS * Math.PI);
-		rightSpeed = (forwardSpeed + rotationSpeed * WIDTH * Math.PI / 360.0)
-				* 180.0 / (RIGHT_RADIUS * Math.PI);
+		leftSpeed = (forwardSpeed - rotationSpeed * SystemConstants.WIDTH * Math.PI / 360.0)
+						* 180.0 / (SystemConstants.LEFT_RADIUS * Math.PI);
+		rightSpeed = (forwardSpeed + rotationSpeed * SystemConstants.WIDTH * Math.PI / 360.0)
+						* 180.0 / (SystemConstants.RIGHT_RADIUS * Math.PI);
 		// convert forwardspeed -> deg/sec and use the formulas on Navigation
 		// Tutorial
 
@@ -95,14 +98,12 @@ public class Robot {
 		rightMotor.setSpeed(0);
 	}
 
-	public void advance(double speed) {
-		forwardSpeed = speed;
-		setSpeeds(forwardSpeed, 0);
+	public void advance(double Fspeed) {
+		setSpeeds(Fspeed, 0);
 	}
 
-	public void rotate(double speed) {
-		rotationSpeed = speed;
-		setSpeeds(0, rotationSpeed);
+	public void rotate(double Rspeed) {
+		setSpeeds(0, Rspeed);
 	}
 
 }

@@ -22,7 +22,7 @@ public class LineDetector implements Runnable {
 	 * 
 	 * Mouhyi
 	 */
-	public void notify() {
+	public void notifyCorrector() {
 	}
 
 }

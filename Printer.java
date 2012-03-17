@@ -1,4 +1,5 @@
 import lejos.nxt.LCD;
+import lejos.nxt.LightSensor;
 import lejos.util.TimerListener;
 
 /**
@@ -11,9 +12,9 @@ import lejos.util.TimerListener;
  */
 public class Printer implements TimerListener {
 
-	public static Coordinates c = new Coordinates();
+	public static Coordinates coords = Coordinates.getInstance();
 	private Odometer odo;
-	private USPoller usPoller;
+	//private USPoller usPoller;
 	private LightSensor lsL;
 	private LightSensor lsR;
 
