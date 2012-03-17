@@ -9,7 +9,7 @@
 public class Localization {
 
 	private Odometer odo;
-	private TwoWheeledRobot robot;
+	private Robot robot;
 	private LightSensor lsL;
 	private LightSensor lsR;
 	private USPoller usp;
@@ -19,7 +19,7 @@ public class Localization {
 	 * 
 	 * @author Mouhyi
 	 */
-	public static void doLocalization() {
+	public void doLocalization() {
 	}
 
 	/**
@@ -27,7 +27,7 @@ public class Localization {
 	 * 
 	 * @author Mouhyi
 	 */
-	public static void doUSLocalization() {
+	public void doUSLocalization() {
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class Localization {
 	 * 
 	 * @author Mouhyi
 	 */
-	public static void doLightLocalization() {
+	public void doLightLocalization() {
 
 	}
 
