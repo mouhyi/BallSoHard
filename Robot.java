@@ -16,6 +16,7 @@ public class Robot {
 	 * @param rMotor The right motor of the robot.
 	 *
 	 * @author Mouhyi
+	 * 
 	 */
 	public Robot(NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) {
 		this.leftMotor = leftMotor;
@@ -27,6 +28,7 @@ public class Robot {
 	 * position in cm.
 	 * 
 	 * @author Mouhyi
+	 * Validated: 03.17.2012 9:44 pm
 	 */
 	public double getDisplacement() {
 		return (leftMotor.getTachoCount() * SystemConstants.LEFT_RADIUS +
@@ -36,8 +38,9 @@ public class Robot {
 
 	/**
 	 * return the robot's heading relative to its original orientation in
-	 * degrees.
+	 * degrees. Positive heading: counter clockwise!!
 	 * @author Mouhyi
+	 * Validated: 03.17.2012 9:44 pm
 	 */
 	public double getHeading() {
 		return (-leftMotor.getTachoCount() * SystemConstants.LEFT_RADIUS +

@@ -1,3 +1,5 @@
+import lejos.nxt.LightSensor;
+
 /**
  * This class is responsible for performing the localization routine
  * USlocalization is executed first to orients the robot parallel to th e Y-axis

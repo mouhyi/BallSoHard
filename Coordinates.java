@@ -1,7 +1,7 @@
 /**
  * This is a Wrapper class for for a polar coordinates system
  * It is designed according to a Singleton Design Pattern to ensure that only
- * on instance of this class class is created and provide a global access to it.
+ * on instance of this class is created and provide a global access to it.
  * 
  * @author Mouhyi
  * 
@@ -51,27 +51,36 @@ public final class Coordinates {
 	}
 	
 	/**
-	 * Getter
+	 * Getter & setter for x
 	 * @author Mouhyi
 	 */
 	public synchronized double getX(){
 	 	return this.x;
 	}
+	public synchronized void setX(double x){
+	 	this.x = x;
+	}
 	
 	/**
-	 * Getter
+	 * Getter & setter for y
 	 * @author Mouhyi
 	 */
 	public synchronized double getY(){
 	 	return this.y;
 	}
+	public synchronized void setY(double y){
+	 	this.y = y;
+	}
 	
 	/**
-	 * Getter
+	 * Getter & setter for theta
 	 * @author Mouhyi
 	 */
 	public synchronized double getTheta(){
 	 	return this.theta;
+	}
+	public synchronized void setTheta(double theta){
+	 	this.theta = theta;
 	}
 
 
