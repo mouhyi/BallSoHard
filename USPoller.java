@@ -31,5 +31,6 @@ public class USPoller implements Runnable {
      * @author Mouhyi
      */
 	public int filter() {
+		return 0;
 	}
 }	
