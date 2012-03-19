@@ -35,10 +35,12 @@ public class SystemConstants {
 	//Angle between light sensor and middle of robot
 	public static final double LS_ANGLE_OFFSET = Math.asin((LS_WIDTH/2)/LS_TOCENTRE);
 
-	public static final double FORWARD_SPEED = 10.0; // cm/s
-	public static final double ROTATION_SPEED = 40.0;
 
+	public static final double FORWARD_SPEED = 13.0; // cm/s
+	public static final double ROTATION_SPEED = 40.0;
+	
 	// 1 foot= 30.48cm	  	
- 	public static double TILE = 30.48;
+ 	private static double TILE = 30.48;
+
 
 }
