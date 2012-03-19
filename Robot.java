@@ -101,12 +101,34 @@ public class Robot {
 		rightMotor.setSpeed(0);
 	}
 
-	public void advance(double Fspeed) {
-		setSpeeds(Fspeed, 0);
+	/**
+	 * Drive {@param: distance} in a straight line
+	 * @param distance
+	 * @author Mouhyi
+	 */
+	public void drive(double distance) {
+		setSpeeds(SystemConstants.FORWARD_SPEED, 0);
+		leftMotor.rotate(convertDistance(SystemConstants.LEFT_RADIUS, distance), true);
+		rightMotor.rotate(convertDistance(SystemConstants.RIGHT_RADIUS, distance), false);
+		this.stop();
+		
 	}
 
 	public void rotate(double Rspeed) {
 		setSpeeds(0, Rspeed);
 	}
+	
+	public double getLeftTacho(){
+		return leftMotor.getTachoCount();
+	}
+	
+	public double getRightTacho(){
+		return rightMotor.getTachoCount();
+	}
+	
+	private static int convertDistance(double radius, double distance) {
+		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
+
 
 }

@@ -18,6 +18,7 @@ public class Odometer implements TimerListener {
 	private Timer timer;
 	private Robot robot;
 	private Coordinates coords;
+	
 	// variable to keep track of the robot's total displacement
 	private double displacement;
 	// variable to keep track of the robot's total heading: continuous: not
@@ -26,6 +27,7 @@ public class Odometer implements TimerListener {
 
 	// odometer update period, in ms
 	private static final int ODOMETER_PERIOD = 25;
+	
 
 	/**
 	 * Constructor
@@ -33,8 +35,9 @@ public class Odometer implements TimerListener {
 	 * @author Mouhyi
 	 */
 	public Odometer(Robot robot) {
-
-		coords = Coordinates.getInstance();
+		
+		this.robot = robot;
+		coords = new Coordinates();
 		// start timer
 		Timer timer = new Timer(ODOMETER_PERIOD, this);
 		timer.start();
@@ -49,29 +52,33 @@ public class Odometer implements TimerListener {
 		double dHeading, dDisplacement;
 		double x, y, theta;
 
-		// get cuurrent coords
-		x = coords.getX();
-		y = coords.getY();
-		theta = coords.getTheta();
-
 		dHeading = robot.getHeading() - heading; // theta <-> heading
 
 		// double dTheta2 = (dTheta < 3 || dTheta > 358) ? 0 :
 		// adjustAngle(dTheta); // /// CHANGE!
 
-		dDisplacement = robot.getDisplacement() - displacement;	// adjust??
+		dDisplacement = robot.getDisplacement() - displacement; // adjust??
 
-		// Formulas from Tutorial: problem angles sum & /2
-		x += dDisplacement * Math.cos(convertToRadians(theta + dHeading / 2)); // //
-		y += dDisplacement * Math.sin(convertToRadians(theta + dHeading / 2)); // //
-		theta += dHeading;
-		theta = adjustAngle(theta);
-		
-		// update displacement
-		displacement += dDisplacement;
+		synchronized (coords) {
+			// get cuurrent coords
+			x = coords.getX();
+			y = coords.getY();
+			theta = coords.getTheta();
 
-		// update coordinates
-		coords.set(x, y, theta);
+			// Formulas from Tutorial: problem angles sum & /2
+			x += dDisplacement
+					* Math.cos(convertToRadians(theta + dHeading / 2));
+			y += dDisplacement
+					* Math.sin(convertToRadians(theta + dHeading / 2));
+			theta += dHeading;
+			theta = adjustAngle(theta);
+
+			// update displacement
+			displacement += dDisplacement;
+
+			// update coordinates
+			coords.set(x, y, theta);
+		}
 
 	}
 
@@ -92,21 +99,60 @@ public class Odometer implements TimerListener {
 		if (this.timer != null)
 			this.timer.start();
 	}
+	/**
+	 * Set robot's coordinates to the given parameters (Demeter's rule)
+	 * @param x
+	 * @param y
+	 * @param theta
+	 * @author Mouhyi
+	 */
+	public void setCoordinates(double x, double y, double theta){
+		synchronized(coords){
+			coords.set(x, y, theta);
+		}
+	}
+	
+	public void setCoordinates(double x, double y, double theta, boolean [] update){
+		synchronized(coords){
+			if(update[0]) coords.setX(x);
+			if(update[1]) coords.setY(y);
+			if(update[2]) coords.setTheta(theta);
+		}
+	}
+	
+	/**
+	 * @return a Coordinates object with the coordinates of the robot
+	 * @author Mouhyi
+	 */
+	public Coordinates getCoordinates(){
+		Coordinates coordsClone =  new Coordinates();
+		synchronized (coords) {		
+			coordsClone.copy(coords);
+		}
+		return coordsClone;
+	}
+	/**
+	 * Compute robot's direction
+	 * 
+	 * @return int direction: 0:E, 1:N, 2:W, 3:S
+	 * @author Mouhyi
+	 */
+	public int getDirection(){
+		double theta;
+		synchronized(coords){
+			theta = coords.getTheta();
+		}
+		int direction = ( (int)(theta + 45) / 90) % 4;	// round then divide
+		return direction;	
+	}
+	
+	
 
 	public Robot getRobot() {
 		return robot;
 	}
 
 	// static 'helper' methods
-
-	public static double minimumAngleFromTo(double a, double b) {
-		double d = adjustAngle(b - a);
-
-		if (d < 180.0)
-			return d;
-		else
-			return d - 360.0;
-	}
 
 	/**
 	 * This method converts angles is degrees to radians
@@ -117,6 +163,17 @@ public class Odometer implements TimerListener {
 	 */
 	public static double convertToRadians(double angle) {
 		return (angle * Math.PI) / (180.0);
+	}
+	
+	/**
+	 * This method converts angles is degrees to radians
+	 * 
+	 * @param angle
+	 * @return corresponding angle in radians
+	 * @author Mouhyi
+	 */
+	public static double convertToDeg(double angle) {
+		return  angle*(180.0) /  Math.PI;
 	}
 
 	/**

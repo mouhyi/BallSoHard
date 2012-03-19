@@ -1,5 +1,6 @@
 import lejos.nxt.LCD;
 import lejos.nxt.LightSensor;
+import lejos.util.Timer;
 import lejos.util.TimerListener;
 
 /**
@@ -12,17 +13,23 @@ import lejos.util.TimerListener;
  */
 public class Printer implements TimerListener {
 
-	public static Coordinates coords = Coordinates.getInstance();
 	private Odometer odo;
 	//private USPoller usPoller;
 	private LightSensor lsL;
 	private LightSensor lsR;
-
+	Coordinates coords;
+	private static final int LCD_PERIOD = 100;
+	private Timer timer;
+	
+	
 	/**
 	 * Constructor
 	 * @author Mouhyi
 	 */
-	public Printer() {
+	public Printer(Odometer odo) {
+		this.odo = odo;
+		Timer timer = new Timer(LCD_PERIOD, this);
+		timer.start();
 	}
 
 	/**
@@ -30,20 +37,26 @@ public class Printer implements TimerListener {
 	 * @author Mouhyi
 	 */
 	public void timedOut() {
+		LCD.clearDisplay();
+		this.update();
 	}
 
 	/**
 	 * Refreshes the screen 
 	 * @author Mouhyi
 	 */
-	public static void update() {
-	}
-
-	/**
-	 * Clears the screen
-	 *  @author Mouhyi
-	 */
-	public static void clear() {
+	public void update() {
+		coords = odo.getCoordinates();
+		
+		// clear the lines for displaying odometry information
+		LCD.drawString("X:              ", 0, 0);
+		LCD.drawString("Y:              ", 0, 1);
+		LCD.drawString("0:              ", 0, 2);
+		
+		// print coordinates
+		LCD.drawInt((int)(coords.getX() ), 2, 0);
+	    LCD.drawInt((int)(coords.getTheta()), 2, 1);
+	    LCD.drawInt((int)(coords.getTheta()), 2, 2);
 	}
 
 }

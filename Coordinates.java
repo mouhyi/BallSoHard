@@ -1,7 +1,5 @@
 /**
  * This is a Wrapper class for for a polar coordinates system
- * It is designed according to a Singleton Design Pattern to ensure that only
- * on instance of this class is created and provide a global access to it.
  * 
  * @author Mouhyi
  * 
@@ -19,22 +17,31 @@ public final class Coordinates {
 	 * 
 	 * @author Mouhyi
 	 */
-	private Coordinates() {
+	public Coordinates() {
 		x = 0;
 		y = 0;
 		theta = 0;
 	}
 	
 	/**
+	 * Constructor: Initialize all the instance variables to the parameters
 	 * 
-	 * @return an instance of this class
 	 * @author Mouhyi
 	 */
-	public static Coordinates getInstance(){
-		if(instance == null ){
-			return new Coordinates();
-		}
-		return instance;
+	public Coordinates(double x, double y, double theta) {
+		this.x = x;
+		this.y = y;
+		this.theta = theta;
+	}
+	
+	/**
+	 * copy's p's fields into this
+	 * @param p
+	 */
+	public void copy(Coordinates p){
+		x=p.x;
+		y=p.y;
+		theta=p.theta;
 	}
 
 	/**
@@ -44,7 +51,7 @@ public final class Coordinates {
 	 * @param theta
 	 * @author Mouhyi
 	 */
-	public synchronized void set(double x, double y, double theta){
+	public void set(double x, double y, double theta){
 		this.x = x;
 		this.y = y;
 		this.theta = theta;
@@ -54,10 +61,10 @@ public final class Coordinates {
 	 * Getter & setter for x
 	 * @author Mouhyi
 	 */
-	public synchronized double getX(){
+	public double getX(){
 	 	return this.x;
 	}
-	public synchronized void setX(double x){
+	public void setX(double x){
 	 	this.x = x;
 	}
 	
@@ -65,10 +72,10 @@ public final class Coordinates {
 	 * Getter & setter for y
 	 * @author Mouhyi
 	 */
-	public synchronized double getY(){
+	public double getY(){
 	 	return this.y;
 	}
-	public synchronized void setY(double y){
+	public void setY(double y){
 	 	this.y = y;
 	}
 	
@@ -76,10 +83,10 @@ public final class Coordinates {
 	 * Getter & setter for theta
 	 * @author Mouhyi
 	 */
-	public synchronized double getTheta(){
+	public double getTheta(){
 	 	return this.theta;
 	}
-	public synchronized void setTheta(double theta){
+	public void setTheta(double theta){
 	 	this.theta = theta;
 	}
 

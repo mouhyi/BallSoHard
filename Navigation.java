@@ -5,17 +5,18 @@
  */
 
 public class Navigation {
-	
+
 	private Odometer odometer;
-	
+
 	/**
 	 * Constructor
+	 * 
 	 * @param odo
 	 * 
-	 * @author Mouhyi 
+	 * @author Mouhyi
 	 */
 	public Navigation(Odometer odo) {
-		
+
 	}
 
 	/**
@@ -31,10 +32,19 @@ public class Navigation {
 	/**
 	 * This method takes an angle and boolean as arguments The boolean controls
 	 * whether or not to stop the motors when the turn is completed
-	 *
+	 * 
 	 * @author Mouhyi
 	 */
 	public void turnTo(double angle, boolean stop) {
 
+	}
+
+	public static double minimumAngleFromTo(double a, double b) {
+		double d = Odometer.adjustAngle(b - a);
+
+		if (d < 180.0)
+			return d;
+		else
+			return d - 360.0;
 	}
 }
