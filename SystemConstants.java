@@ -27,7 +27,14 @@ public class SystemConstants {
 	public static final double WIDTH = 17.2;
 	public static final double LS_WIDTH = 10;
 
-	private static final double FORWARD_SPEED = 13.0; // cm/s
+	//Light sensor to centre of rotation
+	public static final double LS_TOCENTRE = 10;
+	//Distance to centre of both light sensors and centre of rotation
+	public static final double LS_MIDDLE = Math.sqrt(Math.pow(LS_TOCENTRE, 2)-Math.pow((LS_WIDTH/2), 2));
+	//Angle between light sensor and middle of robot
+	public static final double LS_ANGLE_OFFSET = Math.asin((LS_WIDTH/2)/LS_TOCENTRE);
+
+	public static final double FORWARD_SPEED = 13.0; // cm/s
 	public static final double ROTATION_SPEED = 40.0;
 
 }
