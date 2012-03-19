@@ -7,6 +7,7 @@ import lejos.nxt.UltrasonicSensor;
 /**
 *
 * Contains all the physical constants of the system
+* All measures must be in cm and angles in DEGREES
 *
 * @author Mouhyi, Ryan
 */
@@ -29,5 +30,8 @@ public class SystemConstants {
 
 	private static final double FORWARD_SPEED = 13.0; // cm/s
 	public static final double ROTATION_SPEED = 40.0;
+	
+	// 1 foot= 30.48cm	  	
+ 	private static double TILE = 30.48;
 
 }
