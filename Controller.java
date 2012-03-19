@@ -1,3 +1,5 @@
+import lejos.nxt.Button;
+
 
 /**
  * This is the main class that starts all the other threads.
@@ -15,8 +17,12 @@ public class Controller {
 		/**
 		 * Testing: Drive 2 TILES
 		 */
-		robot.drive(SystemConstants.TILE*2);
+		Button.waitForPress();
 		
+		//robot.drive(SystemConstants.TILE*2);
+		robot.rotateAxis(90);
+		robot.drive(SystemConstants.TILE*2);
+		Button.waitForPress();
 
 	}
 	

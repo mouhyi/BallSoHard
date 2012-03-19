@@ -51,6 +51,7 @@ public class Robot {
 
 	/**
 	 * Sets both the forward(cm/s) and rotation(deg/s) speeds of the robot.
+	 * Sepicfy units
 	 * @author Mouhyi
 	 */
 	public void setSpeeds(double forwardSpeed, double rotationSpeed) {
@@ -107,11 +108,21 @@ public class Robot {
 	 * @author Mouhyi
 	 */
 	public void drive(double distance) {
-		setSpeeds(SystemConstants.FORWARD_SPEED, 0);
+		
+		leftMotor.setSpeed( (int)SystemConstants.FORWARD_SPEED);
+		rightMotor.setSpeed((int)SystemConstants.FORWARD_SPEED);
 		leftMotor.rotate(convertDistance(SystemConstants.LEFT_RADIUS, distance), true);
 		rightMotor.rotate(convertDistance(SystemConstants.RIGHT_RADIUS, distance), false);
 		this.stop();
 		
+	}
+	
+	public void rotateAxis(double angle){
+		leftMotor.setSpeed( (int)SystemConstants.FORWARD_SPEED);
+		rightMotor.setSpeed((int)SystemConstants.FORWARD_SPEED);
+		leftMotor.rotate( - convertAngle(SystemConstants.LEFT_RADIUS, SystemConstants.WIDTH, angle), true);
+		rightMotor.rotate( convertAngle(SystemConstants.RIGHT_RADIUS, SystemConstants.WIDTH, angle), false);
+		this.stop();
 	}
 	
 	public void advance(double Fspeed) {
@@ -131,8 +142,23 @@ public class Robot {
 		return rightMotor.getTachoCount();
 	}
 	
+	/**
+	 * @param radius
+	 * @param distance
+	 * @return the number of degs a motor rotate turn to advance the robot by {@param: distance}
+	 */
 	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
+	
+	/**
+	 * @param radius
+	 * @param width
+	 * @param angle in degs
+	 * @return the number of degs a motor rotate turn to turn the robot by {@param: angle}
+	 */
+	private static int convertAngle(double radius, double width, double angle ) {
+		return (int) (( width * angle ) / (radius * 2));
 	}
 
 

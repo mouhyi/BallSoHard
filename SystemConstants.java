@@ -23,6 +23,9 @@ public class SystemConstants {
 	public static UltrasonicSensor USL = new UltrasonicSensor(SensorPort.S2);
 	public static UltrasonicSensor USR = new UltrasonicSensor(SensorPort.S3);
 
+	/**
+	 * @todo : get accurate value of radii
+	 */
 	public static final double LEFT_RADIUS=2.6;
 	public static final double RIGHT_RADIUS= 2.6;
 	public static final double WIDTH = 17.2;
@@ -36,7 +39,7 @@ public class SystemConstants {
 	public static final double LS_ANGLE_OFFSET = Math.asin((LS_WIDTH/2)/LS_TOCENTRE);
 
 
-	public static final double FORWARD_SPEED = 10.0; // cm/s
+	public static final double FORWARD_SPEED = 150; // cm/s
 	public static final double ROTATION_SPEED = 40.0;
 	
 	// 1 foot= 30.48cm	  	

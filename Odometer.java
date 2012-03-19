@@ -52,18 +52,22 @@ public class Odometer implements TimerListener {
 		double dHeading, dDisplacement;
 		double x, y, theta;
 
-		dHeading = robot.getHeading() - heading; // theta <-> heading
+		
 
 		// double dTheta2 = (dTheta < 3 || dTheta > 358) ? 0 :
 		// adjustAngle(dTheta); // /// CHANGE!
 
-		dDisplacement = robot.getDisplacement() - displacement; // adjust??
+		
 
 		synchronized (coords) {
 			// get cuurrent coords
 			x = coords.getX();
 			y = coords.getY();
 			theta = coords.getTheta();
+			
+			dHeading = robot.getHeading() - theta; // theta <-> heading
+			
+			dDisplacement = robot.getDisplacement() - displacement; // adjust??
 
 			// Formulas from Tutorial: problem angles sum & /2
 			x += dDisplacement
@@ -75,6 +79,7 @@ public class Odometer implements TimerListener {
 
 			// update displacement
 			displacement += dDisplacement;
+			heading += dHeading;
 
 			// update coordinates
 			coords.set(x, y, theta);
