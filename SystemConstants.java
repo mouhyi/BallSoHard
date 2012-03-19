@@ -8,7 +8,7 @@ import lejos.nxt.UltrasonicSensor;
 *
 * Contains all the physical constants of the system
 *
-* @author Mouhyi
+* @author Mouhyi, Ryan
 */
 
 public class SystemConstants {
@@ -22,9 +22,9 @@ public class SystemConstants {
 	public static UltrasonicSensor USL = new UltrasonicSensor(SensorPort.S2);
 	public static UltrasonicSensor USR = new UltrasonicSensor(SensorPort.S3);
 
-	public static final double LEFT_RADIUS=2.57;
-	public static final double RIGHT_RADIUS= 2.56;
-	public static final double WIDTH = 16.1;
+	public static final double LEFT_RADIUS=2.6;
+	public static final double RIGHT_RADIUS= 2.6;
+	public static final double WIDTH = 17.2;
 	public static final double LS_WIDTH = 10;
 
 	private static final double FORWARD_SPEED = 13.0; // cm/s
