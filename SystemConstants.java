@@ -36,11 +36,11 @@ public class SystemConstants {
 	public static final double LS_ANGLE_OFFSET = Math.asin((LS_WIDTH/2)/LS_TOCENTRE);
 
 
-	public static final double FORWARD_SPEED = 13.0; // cm/s
+	public static final double FORWARD_SPEED = 10.0; // cm/s
 	public static final double ROTATION_SPEED = 40.0;
 	
 	// 1 foot= 30.48cm	  	
- 	private static double TILE = 30.48;
+ 	public static double TILE = 30.48;
 
 
 }

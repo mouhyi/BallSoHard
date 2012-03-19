@@ -113,6 +113,11 @@ public class Robot {
 		this.stop();
 		
 	}
+	
+	public void advance(double Fspeed) {
+			this.setSpeeds(Fspeed, 0);
+
+	   }
 
 	public void rotate(double Rspeed) {
 		setSpeeds(0, Rspeed);

@@ -107,7 +107,7 @@ public class Localization {
 	private void positionRobot(){
 		
 		//Moves the robot to face wall to the left
-		navigation.turnTo(90);
+		navigation.turnTo(90, true);
 		
 		//Reverse until the robot is near the gridline
 		while(uspL.filter() < 25){
@@ -115,7 +115,7 @@ public class Localization {
 		}
 		
 		//Moves the robot to face the bottom wall
-		navigation.turnTo(180);
+		navigation.turnTo(180, true);
 		
 		while(uspL.filter() < 25){
 			robot.advance(-SystemConstants.FORWARD_SPEED);
