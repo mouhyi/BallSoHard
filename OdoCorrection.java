@@ -1,3 +1,5 @@
+import lejos.nxt.Sound;
+
 /**
  * 
  * This Class implements the odometer correction routine. it listens to LineDetector 
@@ -114,6 +116,7 @@ public class OdoCorrection {
 						
 						// reset
 						this.reset();
+						Sound.beep();
 						
 					}
 				}

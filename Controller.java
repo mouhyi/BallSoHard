@@ -1,4 +1,5 @@
 import lejos.nxt.Button;
+import lejos.nxt.comm.RConsole;
 
 
 /**
@@ -9,7 +10,11 @@ import lejos.nxt.Button;
 public class Controller {
 	
 	public static void main(String[] args){
+		
+		RConsole.openBluetooth(30000);
 
+		Button.waitForPress();
+		
 		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
 		OdoCorrection snapper = new OdoCorrection(odo, robot);
@@ -22,7 +27,7 @@ public class Controller {
 		/**
 		 * Testing: Drive 2 TILES
 		 */
-		Button.waitForPress();
+		
 		
 		//robot.rotateWheels(4*360);
 		for(int i=0; i<4; i++ ){
@@ -38,7 +43,9 @@ public class Controller {
 				LCD.drawString("          ", 0, 6);
 			} catch (InterruptedException e) {}*/
 		}
-
+		
+		
+	
 		Button.waitForPress();
 
 	}
