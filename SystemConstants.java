@@ -24,22 +24,22 @@ public class SystemConstants {
 	public static UltrasonicSensor USR = new UltrasonicSensor(SensorPort.S3);
 
 	/**
-	 * @todo : get accurate value of radii
+	 * @todo : get accurate value of radii  !!!!
 	 */
 	public static final double LEFT_RADIUS=2.6658;
-	public static final double RIGHT_RADIUS= 2.6380;
+	public static final double RIGHT_RADIUS= 2.71;   // 2.6380;
 	public static final double WIDTH = 17.0;
-	public static final double LS_WIDTH = 10;
+	public static final double LS_WIDTH = 13;
 
 	//Light sensor to centre of rotation
-	public static final double LS_TOCENTRE = 10;
+	public static final double LS_TOCENTRE = 14.3;
 	//Distance to centre of both light sensors and centre of rotation
 	public static final double LS_MIDDLE = Math.sqrt(Math.pow(LS_TOCENTRE, 2)-Math.pow((LS_WIDTH/2), 2));
 	//Angle between light sensor and middle of robot
 	public static final double LS_ANGLE_OFFSET = Math.asin((LS_WIDTH/2)/LS_TOCENTRE);
 
 
-	public static final double FORWARD_SPEED = 150; // cm/s
+	public static final double FORWARD_SPEED = 100; 	// 150		// cm/s
 	public static final double ROTATION_SPEED = 40.0;
 	
 	// 1 foot= 30.48cm	  	

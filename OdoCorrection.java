@@ -159,10 +159,6 @@ public class OdoCorrection {
 		tachoCount = (leftFirst) ? robot.getLeftTacho() : robot.getRightTacho();
 		startTime = System.currentTimeMillis();
 	}
-	
-	public static double getGridLine(double coordinate) {
-		return Math.round( ((coordinate - 15) / SystemConstants.TILE) ) * SystemConstants.TILE + 15 ;
-	}
 
 	/**
 	 * Setters and Getters
