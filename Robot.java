@@ -108,7 +108,6 @@ public class Robot {
 	 * @author Mouhyi
 	 */
 	public void drive(double distance) {
-		
 		leftMotor.setSpeed( (int)SystemConstants.FORWARD_SPEED);
 		rightMotor.setSpeed((int)SystemConstants.FORWARD_SPEED);
 		leftMotor.rotate(convertDistance(SystemConstants.LEFT_RADIUS, distance), true);
@@ -129,6 +128,33 @@ public class Robot {
 			this.setSpeeds(Fspeed, 0);
 
 	   }
+	
+	/**
+	 * Rotates the robot wheekls by the given angle
+	 * @param angle in DEG
+	 */
+	public void rotateWheels(double angle){
+		leftMotor.setSpeed( (int)SystemConstants.FORWARD_SPEED);
+		rightMotor.setSpeed((int)SystemConstants.FORWARD_SPEED);
+		
+		int angle2 = (int) angle;
+		leftMotor.rotate(angle2,true);
+		rightMotor.rotate(angle2,false);
+		
+		//this.stop();
+	}
+	
+	public void rotateWheel(double angle, boolean left){
+		if(left){
+			leftMotor.setSpeed( (int)SystemConstants.ROTATION_SPEED);
+			int angle2 = (int) angle;
+			leftMotor.rotate(angle2, false);
+		}else{
+			rightMotor.setSpeed( (int)SystemConstants.ROTATION_SPEED);
+			int angle2 = (int) angle;
+			rightMotor.rotate(angle2,false);
+		}
+	}
 
 	public void rotate(double Rspeed) {
 		setSpeeds(0, Rspeed);

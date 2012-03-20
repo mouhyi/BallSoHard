@@ -37,7 +37,7 @@ public class Printer implements TimerListener {
 	 * @author Mouhyi
 	 */
 	public void timedOut() {
-		LCD.clearDisplay();
+		//LCD.clearDisplay();
 		this.update();
 	}
 

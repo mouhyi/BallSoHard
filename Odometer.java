@@ -1,3 +1,4 @@
+import lejos.nxt.LCD;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
@@ -66,14 +67,20 @@ public class Odometer implements TimerListener {
 			theta = coords.getTheta();
 			
 			dHeading = robot.getHeading() - theta; // theta <-> heading
+			double dTheta = adjustAngle(dHeading);
+			if(dTheta < 2 || dTheta > 358) dTheta =  0;
+			
+			LCD.drawString("dHead "+ dHeading +"          ", 0, 3);
+			LCD.drawString("dTheta "+ dTheta +"           ", 0, 4);
+
 			
 			dDisplacement = robot.getDisplacement() - displacement; // adjust??
 
 			// Formulas from Tutorial: problem angles sum & /2
 			x += dDisplacement
-					* Math.cos(convertToRadians(theta + dHeading / 2));
+					* Math.cos(convertToRadians(theta + dTheta / 2));
 			y += dDisplacement
-					* Math.sin(convertToRadians(theta + dHeading / 2));
+					* Math.sin(convertToRadians(theta + dTheta / 2));
 			theta += dHeading;
 			theta = adjustAngle(theta);
 
