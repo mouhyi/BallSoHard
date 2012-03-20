@@ -20,7 +20,7 @@ public class Controller {
 		Button.waitForPress();
 		
 		//robot.rotateWheels(4*360);
-		for(int i=0; i<2; i++ ){
+		for(int i=0; i<3; i++ ){
 			robot.drive(SystemConstants.TILE*2);
 			robot.rotateAxis(90);
 		}

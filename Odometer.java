@@ -67,8 +67,9 @@ public class Odometer implements TimerListener {
 			theta = coords.getTheta();
 			
 			dHeading = robot.getHeading() - theta; // theta <-> heading
-			double dTheta = adjustAngle(dHeading);
-			if(dTheta < 2 || dTheta > 358) dTheta =  0;
+			
+			double dTheta = NegativeMap(dHeading);
+			//if(dTheta < 1 || dTheta > 359) dTheta =  0;
 			
 			LCD.drawString("dHead "+ dHeading +"          ", 0, 3);
 			LCD.drawString("dTheta "+ dTheta +"           ", 0, 4);
@@ -201,5 +202,22 @@ public class Odometer implements TimerListener {
 			angle = 360.0 + (angle % 360.0);
 		return angle % 360.0;
 	}
+	
+	/**
+	 * Map angle to [-180,180)
+	 * 
+	 * @param angle
+	 *            in degrees
+	 * @return corresponding angle in [-180,180)
+	 * @author Mouhyi
+	 */
+	public static double NegativeMap(double angle) {
+		double d = adjustAngle(angle);
+		if (d < 180.0)
+			return d;
+		else
+			return d - 360.0;
+	}
 
+	
 }

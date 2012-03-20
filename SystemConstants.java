@@ -28,7 +28,7 @@ public class SystemConstants {
 	 */
 	public static final double LEFT_RADIUS=2.6658;
 	public static final double RIGHT_RADIUS= 2.6380;
-	public static final double WIDTH = 17.1;
+	public static final double WIDTH = 17.0;
 	public static final double LS_WIDTH = 10;
 
 	//Light sensor to centre of rotation
