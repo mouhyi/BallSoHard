@@ -41,7 +41,7 @@ public class SystemConstants {
 
 	// END CHANGE	
 
-	public static final double FORWARD_SPEED = 100; 	// 150		// cm/s
+	public static final double FORWARD_SPEED = 150; 	// 150		// cm/s
 	public static final double ROTATION_SPEED = 40.0;
 	
 	// 1 foot= 30.48cm	  	

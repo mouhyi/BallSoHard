@@ -107,18 +107,23 @@ public class Robot {
 	 * @param distance
 	 * @author Mouhyi
 	 */
-	public void drive(double distance) {
-		leftMotor.setSpeed( (int)SystemConstants.FORWARD_SPEED);
-		rightMotor.setSpeed((int)SystemConstants.FORWARD_SPEED);
+	public void goForward(double distance, int speed) {
+		this.stop();
+		leftMotor.setSpeed(speed );
+		rightMotor.setSpeed(speed);
 		leftMotor.rotate(convertDistance(SystemConstants.LEFT_RADIUS, distance), true);
 		rightMotor.rotate(convertDistance(SystemConstants.RIGHT_RADIUS, distance), false);
 		this.stop();
 		
 	}
-	
-	public void rotateAxis(double angle){
-		leftMotor.setSpeed( (int)SystemConstants.FORWARD_SPEED);
-		rightMotor.setSpeed((int)SystemConstants.FORWARD_SPEED);
+	/**
+	 * Rotates the robot, relative to its current position, by the given angle
+	 * @param angle
+	 */
+	public void rotateAxis(double angle, int speed){
+		this.stop();
+		leftMotor.setSpeed(speed);
+		rightMotor.setSpeed(speed);
 		leftMotor.rotate( - convertAngle(SystemConstants.LEFT_RADIUS, SystemConstants.WIDTH, angle), true);
 		rightMotor.rotate( convertAngle(SystemConstants.RIGHT_RADIUS, SystemConstants.WIDTH, angle), false);
 		this.stop();
@@ -130,7 +135,7 @@ public class Robot {
 	   }
 	
 	/**
-	 * Rotates the robot wheekls by the given angle
+	 * Rotates the robot wheels by the given angle
 	 * @param angle in DEG
 	 */
 	public void rotateWheels(double angle){

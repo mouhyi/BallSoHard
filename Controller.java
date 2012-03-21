@@ -17,10 +17,10 @@ public class Controller {
 		
 		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
-		OdoCorrection snapper = new OdoCorrection(odo, robot);
+		/*OdoCorrection snapper = new OdoCorrection(odo, robot);
 		snapper.setEnabled(true);
 		
-		LineDetector.init(snapper);
+		LineDetector.init(snapper);*/
 		
 		Printer lcd = new Printer(odo);
 		
@@ -31,11 +31,11 @@ public class Controller {
 		
 		//robot.rotateWheels(4*360);
 		for(int i=0; i<4; i++ ){
-			snapper.setEnabled(true);
-			robot.drive(SystemConstants.TILE*2);
-			snapper.setEnabled(false);
-			robot.rotateAxis(90);
-			snapper.setEnabled(true);
+			//snapper.setEnabled(true);
+			robot.goForward(SystemConstants.TILE*2, (int)SystemConstants.FORWARD_SPEED);
+			//snapper.setEnabled(false);
+			robot.rotateAxis(90, (int) SystemConstants.ROTATION_SPEED);
+			//snapper.setEnabled(true);
 			
 			/*LCD.drawString("TILE         ", 0, 6);
 			try {
