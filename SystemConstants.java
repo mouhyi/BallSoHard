@@ -24,7 +24,8 @@ public class SystemConstants {
 	public static UltrasonicSensor USR = new UltrasonicSensor(SensorPort.S3);
 
 	/**
-	 * @todo : get accurate value of radii  !!!!
+	 * VERY IMPORTANT
+	 * @todo : get accurate value of radii & width  !!!!
 	 */
 	public static final double LEFT_RADIUS=2.6658;
 	public static final double RIGHT_RADIUS= 2.71;   // 2.6380;

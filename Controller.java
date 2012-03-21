@@ -11,7 +11,7 @@ public class Controller {
 	
 	public static void main(String[] args){
 		
-		RConsole.openBluetooth(30000);
+		//RConsole.openBluetooth(30000);
 
 		Button.waitForPress();
 		
@@ -32,9 +32,9 @@ public class Controller {
 		//robot.rotateWheels(4*360);
 		for(int i=0; i<4; i++ ){
 			//snapper.setEnabled(true);
-			robot.goForward(SystemConstants.TILE*2, (int)SystemConstants.FORWARD_SPEED);
+			robot.goForward(SystemConstants.TILE*8, (int)SystemConstants.FORWARD_SPEED);
 			//snapper.setEnabled(false);
-			robot.rotateAxis(90, (int) SystemConstants.ROTATION_SPEED);
+			//robot.rotateAxis(90, (int) SystemConstants.ROTATION_SPEED);
 			//snapper.setEnabled(true);
 			
 			/*LCD.drawString("TILE         ", 0, 6);
