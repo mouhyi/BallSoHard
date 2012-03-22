@@ -11,39 +11,32 @@ public class Controller {
 	
 	public static void main(String[] args){
 		
-		RConsole.openBluetooth(30000);
+		//RConsole.openBluetooth(30000);
 
 		Button.waitForPress();
 		
 		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
-		Odometer odo = new Odometer(robot);
+		//Odometer odo = new Odometer(robot);
 		/*OdoCorrection snapper = new OdoCorrection(odo, robot);
 		snapper.setEnabled(true);
 		
 		LineDetector.init(snapper);*/
 		
-		Printer lcd = new Printer(odo);
+		//Printer lcd = new Printer(odo);
 		
 		/**
-		 * Testing: Drive 2 TILES
+		 * Testing: Tweek SystemConstants.WIDTH
+		 * Rotate the robot 'turnsNumber' times about its center and change the value
+		 * of SystemConstants.WIDTH Accordingly until it comes back exactly
+		 * to its starting position.
+		 * if robot stops beyond the starting position : decrement WIDTH
+		 * otherwise, increment WIDTH
 		 */
 		
-		
-		//robot.rotateWheels(4*360);
-		for(int i=0; i<4; i++ ){
-			//snapper.setEnabled(true);
-			robot.goForward(SystemConstants.TILE*2, (int)SystemConstants.FORWARD_SPEED);
-			//snapper.setEnabled(false);
-			robot.rotateAxis(90, (int) SystemConstants.ROTATION_SPEED);
-			//snapper.setEnabled(true);
-			
-			/*LCD.drawString("TILE         ", 0, 6);
-			try {
-				Thread.sleep(3000);
-				LCD.drawString("          ", 0, 6);
-			} catch (InterruptedException e) {}*/
-		}
-		
+		int turnsNumber = 6;  // start with 6 and until 10
+		robot.rotateAxis(turnsNumber *360, (int) SystemConstants.ROTATION_SPEED);
+	
+
 		
 	
 		Button.waitForPress();
