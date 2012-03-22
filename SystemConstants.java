@@ -23,7 +23,8 @@ public class SystemConstants {
 	public static UltrasonicSensor USL = new UltrasonicSensor(SensorPort.S2);
 	public static UltrasonicSensor USR = new UltrasonicSensor(SensorPort.S3);
 
-	/**
+	/** left radius is 2.7220, and the right radius is 2.7230
+	 * 
 	 * VERY IMPORTANT
 	 * @todo : get accurate value of radii & width  !!!!
 	 */
