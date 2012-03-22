@@ -66,7 +66,7 @@ public class Odometer implements TimerListener {
 			y = coords.getY();
 			theta = coords.getTheta();
 			
-			dHeading = robot.getHeading() - theta; // theta <-> heading
+			dHeading = robot.getHeading() - heading; // theta <-> heading , if not heading, manual correction doesn't work
 			
 			double dTheta = NegativeMap(dHeading);
 			//if(dTheta < 1 || dTheta > 359) dTheta =  0;
@@ -82,7 +82,7 @@ public class Odometer implements TimerListener {
 					* Math.cos(convertToRadians(theta + dTheta / 2));
 			y += dDisplacement
 					* Math.sin(convertToRadians(theta + dTheta / 2));
-			theta += dHeading;
+			theta += dTheta;	// not sure if this correction is correct
 			theta = adjustAngle(theta);
 
 			// update displacement
