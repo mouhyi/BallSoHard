@@ -14,9 +14,10 @@ import lejos.util.TimerListener;
 
 public class LineDetector implements TimerListener {
 
-	private final int SENSOR_THRESHOLD = 4;
-	private final int DETECTION_THRESHOLD = 5;
+	private final int SENSOR_THRESHOLD = 15;
+	private final int DETECTION_THRESHOLD = 15;
 	private int[] lightValue = new int[6];
+	private double robotSpeed;
 	LightSensor ls;
 	static final int THRESHOLD = 450;
 	int last_reading;
@@ -36,28 +37,36 @@ public class LineDetector implements TimerListener {
 	 * 
 	 * @author Mouhyi
 	 */
-	private LineDetector(LightSensor ls, boolean isleft, OdoCorrection snapper) {
+	
+	/*
+	 * Added an argument to the constructor to base the frequency of the light sensor readings on
+	 * the speed of the robot
+	 */
+	private LineDetector(LightSensor ls, boolean isleft, OdoCorrection snapper, double robotSpeed) {
 		this.ls = ls;
 		this.isleft = isleft;
 		this.snapper = snapper;
+		this.robotSpeed = robotSpeed;
 		
-		Timer timer = new Timer(PERIOD, this);
+		Timer timer = new Timer((int)(166/this.robotSpeed), this); 			// 166/this.robotSpeed
 		timer.start();
 	}
 	
-	public static void init(OdoCorrection snapper){
-		left = new LineDetector(SystemConstants.leftLight, true, snapper);
-		right = new LineDetector( SystemConstants.rightLight, false, snapper);
+	public static void init(OdoCorrection snapper, double robotSpeed){
+		left = new LineDetector(SystemConstants.leftLight, true, snapper, robotSpeed);
+		right = new LineDetector( SystemConstants.rightLight, false, snapper, robotSpeed);
 	}
 
 	/**
 	 * This method implements the run method of the Runnable interface. It calls
 	 * notify when it detects a line cross
 	 * 
-	 * @author Mouhyi, Ryan
+	 * @author Mouhyi, Ryan, Josh
 	 */
 	public void timedOut() {
 		
+		
+		/*
 		int i;
 		int maxIndex = lightValue.length-1;
 
@@ -67,8 +76,8 @@ public class LineDetector implements TimerListener {
 		}
 		
 		//Filters out values if the difference between subsequent values is too small
-		if(!(Math.abs(lightValue[maxIndex]-ls.getLightValue()) < SENSOR_THRESHOLD)){
-			lightValue[maxIndex]=ls.getLightValue();
+		if(!(Math.abs(lightValue[maxIndex]-ls.getNormalizedLightValue()) < SENSOR_THRESHOLD)){
+			lightValue[maxIndex]=ls.getNormalizedLightValue();
 		}
 				
 		//Detects a line if there is first a positive difference in light, then negative
@@ -77,18 +86,36 @@ public class LineDetector implements TimerListener {
 		   lightValue[2]-lightValue[3]<=-DETECTION_THRESHOLD ||
 		   lightValue[3]-lightValue[4]<=-DETECTION_THRESHOLD ||
 		   lightValue[4]-lightValue[5]<=-DETECTION_THRESHOLD)){
+		
+			if(this == left){
+				RConsole.println("Left line detected");
+			}
+			else if(this == right){
+				RConsole.println("Right line detected");
+			}
 			
-				notifyListener();				
+				notifyListener();
+				
+				// Clear out the line condition
+				for(i=0; i<maxIndex; i++){
+					lightValue[i]=lightValue[i+1];
+				}
+				// Delay to reduce risk of counting line again
+				try
+				{
+					Thread.sleep((int)(500/this.robotSpeed));
+				}
+				catch (InterruptedException e){}
 		}
 		
 		last_reading = lightValue[maxIndex];
-		
+		*/
 
-		/*int new_reading = ls.getNormalizedLightValue();
+		int new_reading = ls.getNormalizedLightValue();
 		if (new_reading < THRESHOLD && last_reading > THRESHOLD)
 			notifyListener();
 		last_reading = new_reading;
-		*/
+		
 	}
 
 	/**

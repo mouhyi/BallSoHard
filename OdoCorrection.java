@@ -1,4 +1,5 @@
 import lejos.nxt.Sound;
+import lejos.nxt.comm.RConsole;
 
 /**
  * 
@@ -78,6 +79,13 @@ public class OdoCorrection {
 				}
 				// second line
 				else {
+					
+					/*
+					 * Refresh direction before correction
+					 */
+					
+					curDirection = odo.getDirection();
+					
 					double deltaTacho = tachoCount;
 					tachoCount = (leftFirst) ? robot.getLeftTacho() : robot.getRightTacho();
 					deltaTacho = tachoCount - deltaTacho;
@@ -85,6 +93,8 @@ public class OdoCorrection {
 					// compute distance traveled between line cross detections
 					double distTraveled = deltaTacho / 180.0
 											* Math.PI * SystemConstants.LEFT_RADIUS;
+					RConsole.println("Distance Traveled: "+String.valueOf(distTraveled));
+					
 					// id distance is too large
 					if(distTraveled > 10){
 						reset(detector);
@@ -94,13 +104,25 @@ public class OdoCorrection {
 						double theta = this.correctAngle(distTraveled, curDirection, leftFirst);
 						Coordinates pos = odo.getCoordinates();
 						
+						
 						if(curDirection % 2 == 0){
 							double x = pos.getX();
 							// ls.mid == robot.center???
 							double axis = Math.round(x / SystemConstants.TILE ) *SystemConstants.TILE;
-							x = axis + ( distTraveled - SystemConstants.LS_MIDDLE )/2 * Math.cos(theta);
+							
+							RConsole.println("Original x: "+String.valueOf(pos.getX()));
+							
+							//Changed calculation
+							x= axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
+							
+							/*	ORIGINAL
+							 * 	The first line correction always results in a negative x value
+							 */
+							//x = axis + ( distTraveled - SystemConstants.LS_MIDDLE )/2 * Math.cos(theta);
 							// x-= LS_Offset
 							
+							RConsole.println("New x: " + String.valueOf(x));
+		
 							odo.setCoordinates(x, 0, theta, new boolean[] {true, false, true});	
 						}
 						
@@ -108,15 +130,27 @@ public class OdoCorrection {
 							double y = pos.getY();
 							// ls.mid == robot.center???
 							double axis = Math.round(y / SystemConstants.TILE ) *SystemConstants.TILE;
-							y = axis + ( distTraveled - SystemConstants.LS_MIDDLE  )/2 * Math.sin(theta);
+							RConsole.println("Original y: " +String.valueOf(pos.getY())); 
+							
+							
+							//Changed calculation
+							y = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+SystemConstants.LS_ANGLE_OFFSET));
+							
+							//ORIGINAL
+							//y = axis + ( distTraveled - SystemConstants.LS_MIDDLE  )/2 * Math.sin(theta);
 							// x-= LS_Offset
 							
-							odo.setCoordinates(0, y, theta, new boolean[] {false, true, true});	
+							
+							RConsole.println("New y: "+String.valueOf(y));
+							
+							odo.setCoordinates(0, y, theta, new boolean[] {false, true, true});
 						}
 						
 						// reset
+						RConsole.println("Odometer corrected");
+						RConsole.println("");
 						this.reset();
-						Sound.beep();
+						
 						
 					}
 				}
@@ -137,6 +171,9 @@ public class OdoCorrection {
 
 		offsetAngle = Math.atan(distTraveled / SystemConstants.LS_WIDTH);
 		offsetAngle = Odometer.convertToDeg(offsetAngle);
+		
+		RConsole.println("Offset angle: "+String.valueOf(offsetAngle));
+		
 		offsetAngle = Odometer.adjustAngle(offsetAngle);
 
 		// Subtract offsetAngle if the left sensor detects the line first, add
@@ -144,6 +181,8 @@ public class OdoCorrection {
 		int coef = (leftFirst) ? -1 : 1;
 		theta = direction * 90 + coef * offsetAngle;
 		theta = Odometer.adjustAngle(theta);
+		
+		RConsole.println("New angle: " + String.valueOf(theta));
 
 		return theta;
 	}
