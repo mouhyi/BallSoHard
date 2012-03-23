@@ -32,17 +32,30 @@ public class SystemConstants {
 	public static final double RIGHT_RADIUS= 2.7230;   // 2.6380;
 	public static final double WIDTH = 17.0;
 	
-	// CHANGE!!!!
-	public static final double LS_WIDTH = 12.8;
+	/*
+	 * CHANGED: LS_ANGLE_OFFSET is measured in degrees
+	 */
+	
+	//Distance between light sensors
+	public static final double LS_WIDTH = 13;
 	//Light sensor to centre of rotation
 	public static final double LS_TOCENTRE = 15.3;
 	//Distance to centre of both light sensors and centre of rotation
 	public static final double LS_MIDDLE = Math.sqrt(Math.pow(LS_TOCENTRE, 2)-Math.pow((LS_WIDTH/2), 2));
 	//Angle between light sensor and middle of robot
-	public static final double LS_ANGLE_OFFSET = Math.asin((LS_WIDTH/2)/LS_TOCENTRE);
-
-	// END CHANGE	
-
+	public static final double LS_ANGLE_OFFSET = Math.toDegrees(Math.asin((LS_WIDTH/2)/LS_TOCENTRE));   		//In DEGREES
+		
+	/*		   
+	 * 		   						|-----*-----|			Centre of rotation = *
+	 *									 / \			
+	 * 			 					    /o| \       		LS_ANGLE_OFFSET = o
+	 *  			LS_CENTRE----->    /  |  \			
+	 *           					  /   |   \
+	 *          					 /    | <---------------LS_MIDDLE
+	 *   						    #-----------#        	Light sensors = #  
+	 * 			 					  LS_WIDTH
+	 */
+	
 	public static final double FORWARD_SPEED = 150; 	// 150		// cm/s
 	public static final double ROTATION_SPEED = 40.0;
 	
