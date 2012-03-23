@@ -18,9 +18,6 @@ public class Localization {
 	private LightSensor lsR;
 	private USPoller uspL;
 	private USPoller uspR;
-	
-	private final int SENSOR_THRESHOLD = 4;
-	private final int DETECTION_THRESHOLD = 5;
 
 	// Constructor
 	public Localization(Odometer odo, Robot robot, LightSensor lsL, LightSensor lsR, USPoller uspL, USPoller uspR) {
@@ -36,7 +33,7 @@ public class Localization {
 	/**
 	 * main Localization routine
 	 *
-	 * @author Mouhyi
+	 * @author Mouhyi, JDAlfaro
 	 */
 	public void doLocalization() {
 		this.doUSLocalization();
@@ -48,7 +45,7 @@ public class Localization {
 	/**
 	 * US Localization routine: falling edge
 	 *
-	 * @author Mouhyi, Joshua David Alfaro
+	 * @author Mouhyi, JDAlfaro
 	 */
 	private  void doUSLocalization()	// Falling and Rising Edge Method
 	{
@@ -116,7 +113,7 @@ public class Localization {
 	/**
 	 * Light Localization routine
 	 *
-	 * @author Mouhyi
+	 * @author Mouhyi, JDAlfaro
 	 */
 	private void doLightLocalization()
 	{
@@ -178,22 +175,12 @@ public class Localization {
 					angleL[3] = odo.getCoordinates().getTheta();
 					RConsole.println("angleL[3]  " + angleL[3]);
 					leftDone = false;
-					
 					break;
 				default:
 					break;
 				}
 				
 				linePassedL = false;
-				// so that it doesn't read multiple times
-				/*try
-				{
-					Thread.sleep(100);
-				}
-				catch (InterruptedException e)
-				{
-				
-				}*/
 				leftLight.resetLine();
 			}
 			
@@ -218,105 +205,65 @@ public class Localization {
 					angleR[3] = odo.getCoordinates().getTheta();
 					RConsole.println("angleR[3]  " + angleR[3]);
 					rightDone = false;
-					
 					break;
 				default:
 					break;
 				}
 				
 				linePassedR = false;
-				// so that it doesn't read multiple times
-				/*try
-				{
-					Thread.sleep(100);
-				}
-				catch (InterruptedException e)
-				{
-				
-				}*/
 				rightLight.resetLine();
 			}			
-			
-			
-			try
-			{
-				Thread.sleep(50);
-			}
-			catch (InterruptedException e)
-			{
-			
-			}
-			
 		}
 		robot.stop();	// stop doing moving and leave loop to perform calculations
 		
-		// Stop timers for light timer detection
+		// Stop timers for light timer detection since it is no longer needed.
 		leftLight.stop();
 		rightLight.stop();
 		
 		
-		// do trig to compute with referecen to real (0,0) and 0 degrees
-		xOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleL[2] - angleL[0])/2)
-				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleR[2] - angleR[0])/2))/2;
-		yOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleL[3] - angleL[1])/2)
-				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleR[3] - angleR[1])/2))/2;
+		// do trigonometry to compute with reference to real (0,0) and 0 degrees
+		xOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos(Math.toRadians((angleL[2] - angleL[0])/2))
+				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos(Math.toRadians((angleR[2] - angleR[0])/2)))/2;
+		yOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos(Math.toRadians((angleL[3] - angleL[1])/2))
+				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos(Math.toRadians((angleR[3] - angleR[1])/2)))/2;
+		
+		// needs work, WORSE CASE = set to 30 degrees since it seems to stop around there.
 		thetaOffset = (Math.abs(angleL[3] - angleL[0]) - 90 - Math.abs(angleL[2] - angleL[0])/2 
 				+ Math.abs(angleR[3] - angleR[0]) - 90 - Math.abs(angleR[2] - angleR[0])/2)/2;
 		
 		odo.setCoordinates(xOffset, yOffset, thetaOffset, new boolean[] {true, true, true});
-	
 	}
 	
 	/**
 	 * Light Localization routine 2
-	 *
-	 * @author Mouhyi, josh
+	 *	Drive straight towards line and basically use odometry correction style correction
+	 * @author Mouhyi, JDAlfaro
 	 */
-	private void doLightLocalization2()
+	private void doLightLocalization2()	// not tested, is another idea, not finished
 	{
 		double time_left = 0, time_right = 0;
 		boolean leftNotSeen = true, rightNotSeen = true;
-		
-		boolean darkL = false;
-		int lightValueL;
-		//int lastLightValueL = lsL.getLightValue();
-		int deltaLightL = 0;
-		
-		boolean darkR = false;
-		int lightValueR;
-		int deltaLightR = 0;
+
+		robot.advance(5);		// for some reason it needs to be called twice to work
+		LightTimer leftLight = new LightTimer(lsL, robot.getSpeed());
+		LightTimer rightLight = new LightTimer(lsR, robot.getSpeed());
 		
 		while(leftNotSeen || rightNotSeen)
 		{
-			robot.advance(5);		// for some reason it needs to be called twice to work
-			
-			
-			
-			if((deltaLightL > 4) && darkL)	// checks if derivative went from negative to positive
+			if(leftLight.lineDetected())
 			{
 				time_left = System.currentTimeMillis();
 				leftNotSeen = false;
 				Sound.setVolume(20);
-				Sound.beep();		// Audio visual notification of line pass
+				Sound.beep();	
 			}
-			
-			
-			if((deltaLightR > 4) && darkR)	// checks if derivative went from negative to positive
+				
+			if(rightLight.lineDetected())
 			{
 				time_right = System.currentTimeMillis();
 				rightNotSeen = false;
 				Sound.setVolume(20);
-				Sound.beep();		// Audio visual notification of line pass
-			}
-		
-			
-			try
-			{
-				Thread.sleep(50);
-			}
-			catch (InterruptedException e)
-			{
-			
+				Sound.beep();
 			}
 		}
 		
