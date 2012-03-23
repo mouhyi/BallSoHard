@@ -34,23 +34,23 @@ public class Navigation {
 		double distance;
 		Coordinates coords;
 		double destAngle;
-		
+
 		coords = odo.getCoordinates();
-		destAngle = Math.atan2(y - coords.getY() , x - coords.getX());
+		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
 		turnTo(destAngle);
-		
-		do{
+
+		coords = odo.getCoordinates();
+		distance = getDistance(x, y, coords.getX(), coords.getY());
+
+		robot.goForward(distance, (int) SystemConstants.FORWARD_SPEED);
+
+		while(distance > DISTANCE_TOLERANCE){
 			coords = odo.getCoordinates();
 			distance = getDistance(x, y, coords.getX(), coords.getY());
-			
-			robot.goForward(distance, (int)SystemConstants.FORWARD_SPEED);
-			
-			coords = odo.getCoordinates();
-			distance = getDistance(x, y, coords.getX(), coords.getY());
-			
-		}while(distance > DISTANCE_TOLERANCE);
-		
+		}
+		robot.stop();
+
 	}
 
 	/**
@@ -60,19 +60,19 @@ public class Navigation {
 	 */
 	public void turnTo(double destAngle) {
 		double err;
-		do{
+		do {
 			destAngle = Odometer.adjustAngle(destAngle);
 			double curTheta = odo.getCoordinates().getTheta();
 			double rotAngle = minimumAngleFromTo(destAngle, curTheta);
 
 			robot.rotateAxis(rotAngle, (int) SystemConstants.ROTATION_SPEED);
-			
+
 			// and compute error
 			curTheta = odo.getCoordinates().getTheta();
 			err = destAngle - curTheta;
-			
-		}while (Math.abs(err) > ROTATION_TOLERANCE);
-		
+
+		} while (Math.abs(err) > ROTATION_TOLERANCE);
+
 	}
 
 	/**
@@ -90,8 +90,8 @@ public class Navigation {
 		else
 			return d - 360.0;
 	}
-	
-	public static double getDistance(double x1, double y1, double x2, double y2 ){
-		return Math.sqrt ( Math.pow(x1- x2, 2) - Math.pow( y1 - y2 , 2) );
+
+	public static double getDistance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt(Math.pow(x1 - x2, 2) - Math.pow(y1 - y2, 2));
 	}
 }
