@@ -191,6 +191,12 @@ public class Robot {
 	private static int convertAngle(double radius, double width, double angle ) {
 		return (int) (( width * angle ) / (radius * 2));
 	}
+	/**
+	 * Return speed of robot
+ 	*/
+	public double getSpeed() {
+		return (Math.abs(leftMotor.getSpeed()*SystemConstants.LEFT_RADIUS*Math.PI/180) + Math.abs(rightMotor.getSpeed()*SystemConstants.RIGHT_RADIUS*Math.PI/180))/2;
 
+}
 
 }
