@@ -48,10 +48,10 @@ public class SystemConstants {
 	/*		   
 	 * 		   						|-----*-----|			Centre of rotation = *
 	 *									 / \			
-	 * 			 					    /o| \       		LS_ANGLE_OFFSET = o
+	 * 			 					    / | \       		LS_ANGLE_OFFSET = o
 	 *  			LS_CENTRE----->    /  |  \			
 	 *           					  /   |   \
-	 *          					 /    | <---------------LS_MIDDLE
+	 *          					 /o   | <---------------LS_MIDDLE
 	 *   						    #-----------#        	Light sensors = #  
 	 * 			 					  LS_WIDTH
 	 */
