@@ -1,21 +1,26 @@
 import lejos.nxt.*;
-import lejos.nxt.comm.RConsole;
 import lejos.util.*;
 
-public class LightTimer implements TimerListener{
+public class LightTimer implements TimerListener
+{
 	
-	private final int REFRESH = 5;
-	private final int SENSOR_THRESHOLD = 4;
-	private final int DETECTION_THRESHOLD = 4;
+	private final int SENSOR_THRESHOLD = 15;
+	private final int DETECTION_THRESHOLD = 15;
 	private int[] lightValue = new int[6];
 	private LightSensor sensor; 
-	private Timer lightTimer = new Timer(REFRESH, this);
+	private Timer lightTimer;
+	private double robotSpeed;
+	
 	private boolean lineDetected = false;
 	
 	//Initializes timer and starts reading light values
-	public LightTimer(LightSensor lsl){
-		this.sensor = lsl;
-		this.lightTimer.start();
+	public LightTimer(LightSensor ls, double robotSpeed)		// robot speed in cm/s
+	{
+		this.sensor = ls;
+		this.robotSpeed = robotSpeed;
+		lightTimer = new Timer((int)(166/this.robotSpeed), this); // 166/this.robotSpeed
+		LCD.drawString("" + this.robotSpeed, 0 , 7);
+		lightTimer.start();
 	}
 		
 	//Collects light sensor data
@@ -29,12 +34,9 @@ public class LightTimer implements TimerListener{
 		}
 		
 		//Filters out values if the difference between subsequent values is too small
-		if(!(Math.abs(lightValue[maxIndex]-sensor.getLightValue()) < SENSOR_THRESHOLD)){
-			lightValue[maxIndex]=sensor.getLightValue();
+		if(!(Math.abs(lightValue[maxIndex]-sensor.getNormalizedLightValue()) < SENSOR_THRESHOLD)){
+			lightValue[maxIndex]=sensor.getNormalizedLightValue();
 		}
-		
-		//Prints the filtered light value
-		RConsole.println(String.valueOf(lightValue[maxIndex]));
 		
 		//Detects a line if there is first a positive difference in light, then negative
 		if(lightValue[0]-lightValue[1]>= DETECTION_THRESHOLD &&
@@ -44,7 +46,20 @@ public class LightTimer implements TimerListener{
 		   lightValue[4]-lightValue[5]<=-DETECTION_THRESHOLD) &&
 		   lineDetected==false){
 			
-				lineDetected=true;				
+				lineDetected=true;
+				// Clear out the line condition
+				for(i=0; i<maxIndex; i++){
+					lightValue[i]=lightValue[i+1];
+				}
+				// Delay to reduce risk of counting line again
+				try
+				{
+					Thread.sleep((int)(500/this.robotSpeed));
+				}
+				catch (InterruptedException e)
+				{
+				
+				}
 		}
 	}
 
@@ -56,6 +71,10 @@ public class LightTimer implements TimerListener{
 	//Sets sets line detection to false
 	public void resetLine(){
 		lineDetected = false;
+	}
+	
+	public void stop(){
+		lightTimer.stop();
 	}
 	
 }

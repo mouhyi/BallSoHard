@@ -7,6 +7,7 @@
 */
 
 import lejos.nxt.*;
+import lejos.nxt.comm.RConsole;
 
 public class Localization {
 
@@ -17,10 +18,6 @@ public class Localization {
 	private LightSensor lsR;
 	private USPoller uspL;
 	private USPoller uspR;
-	private int[] lightValueL = new int[6];
-	int last_reading_left;
-	private int[] lightValueR = new int[6];
-	int last_reading_right;
 	
 	private final int SENSOR_THRESHOLD = 4;
 	private final int DETECTION_THRESHOLD = 5;
@@ -123,24 +120,17 @@ public class Localization {
 	 */
 	private void doLightLocalization()
 	{
+		// Timer for light sensor depending on speed of robot.
+		robot.rotate(SystemConstants.ROTATION_SPEED);
+		LightTimer leftLight = new LightTimer(lsL, robot.getSpeed());
+		LightTimer rightLight = new LightTimer(lsR, robot.getSpeed());
 
-		// start rotating and clock all 4 gridlines
 		boolean leftDone = true;
-		boolean darkL = false;
-		int resetL = 0;
-		int lightValueL;
-		int lastLightValueL = lsL.getLightValue();
-		int deltaLightL = 0;
 		int gridLineCountL = 0;
 		boolean linePassedL = false;
 		double[] angleL = {0, 0, 0, 0};
 		
 		boolean rightDone = true;
-		boolean darkR = false;
-		int resetR = 0;
-		int lightValueR;
-		int lastLightValueR = lsR.getLightValue();
-		int deltaLightR = 0;
 		int gridLineCountR = 0;
 		boolean linePassedR = false;
 		double[] angleR = {0, 0, 0, 0};
@@ -151,53 +141,20 @@ public class Localization {
 		{
 			robot.rotate(SystemConstants.ROTATION_SPEED);
 			
-			lightValueL = lsL.getLightValue();
-			deltaLightL = (lightValueL - lastLightValueL);
-			if(deltaLightL < -4)
-			{
-				darkL = true;
-			}
-			
-			lightValueR = lsR.getLightValue();
-			deltaLightR = (lightValueR - lastLightValueR);
-			if(deltaLightR < -4)
-			{
-				darkR = true;
-			}
-			
-			if((deltaLightL > 4) && darkL)	// checks if derivative went from negative to positive
+			if(leftLight.lineDetected())
 			{
 				gridLineCountL = gridLineCountL + 1;
 				linePassedL = true;
 				Sound.setVolume(20);
-				Sound.beep();		// Audio visual notification of line pass
+				Sound.beep();
 			}
-			else
-			{
-				resetL = resetL + 1;
-			}
-			lastLightValueL = lsL.getLightValue();
-			
-			if((deltaLightR > 4) && darkR)	// checks if derivative went from negative to positive
+				
+			if(rightLight.lineDetected())
 			{
 				gridLineCountR = gridLineCountR + 1;
 				linePassedR = true;
 				Sound.setVolume(20);
-				Sound.beep();		// Audio visual notification of line pass
-			}
-			else
-			{
-				resetR = resetR + 1;
-			}
-			lastLightValueR = lsR.getLightValue();
-			
-			if(resetL > 5)
-			{
-				darkL = false;
-			}
-			if(resetR > 5)
-			{
-				darkR = false;
+				Sound.beep();
 			}
 			
 			// latch angles into memory only after a line pass
@@ -207,15 +164,19 @@ public class Localization {
 				{	
 				case 1:
 					angleL[0] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[0]  " + angleL[0]);
 					break;
 				case 2:
 					angleL[1] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[1]  " + angleL[1]);
 					break;
 				case 3:
 					angleL[2] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[2]  " + angleL[2]);
 					break;
 				case 4:
 					angleL[3] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[3]  " + angleL[3]);
 					leftDone = false;
 					
 					break;
@@ -225,14 +186,15 @@ public class Localization {
 				
 				linePassedL = false;
 				// so that it doesn't read multiple times
-				try
+				/*try
 				{
 					Thread.sleep(100);
 				}
 				catch (InterruptedException e)
 				{
 				
-				}
+				}*/
+				leftLight.resetLine();
 			}
 			
 			// latch angles into memory only after a line pass
@@ -242,15 +204,19 @@ public class Localization {
 				{	
 				case 1:
 					angleR[0] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[0]  " + angleR[0]);
 					break;
 				case 2:
 					angleR[1] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[1]  " + angleR[1]);
 					break;
 				case 3:
 					angleR[2] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[2]  " + angleR[2]);
 					break;
 				case 4:
 					angleR[3] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[3]  " + angleR[3]);
 					rightDone = false;
 					
 					break;
@@ -260,14 +226,15 @@ public class Localization {
 				
 				linePassedR = false;
 				// so that it doesn't read multiple times
-				try
+				/*try
 				{
 					Thread.sleep(100);
 				}
 				catch (InterruptedException e)
 				{
 				
-				}
+				}*/
+				rightLight.resetLine();
 			}			
 			
 			
@@ -282,6 +249,12 @@ public class Localization {
 			
 		}
 		robot.stop();	// stop doing moving and leave loop to perform calculations
+		
+		// Stop timers for light timer detection
+		leftLight.stop();
+		rightLight.stop();
+		
+		
 		// do trig to compute with referecen to real (0,0) and 0 degrees
 		xOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleL[2] - angleL[0])/2)
 				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleR[2] - angleR[0])/2))/2;
@@ -306,31 +279,18 @@ public class Localization {
 		
 		boolean darkL = false;
 		int lightValueL;
-		int lastLightValueL = lsL.getLightValue();
+		//int lastLightValueL = lsL.getLightValue();
 		int deltaLightL = 0;
 		
 		boolean darkR = false;
 		int lightValueR;
-		int lastLightValueR = lsR.getLightValue();
 		int deltaLightR = 0;
 		
 		while(leftNotSeen || rightNotSeen)
 		{
 			robot.advance(5);		// for some reason it needs to be called twice to work
 			
-			lightValueL = lsL.getLightValue();
-			deltaLightL = (lightValueL - lastLightValueL);
-			if(deltaLightL < -4)
-			{
-				darkL = true;
-			}
 			
-			lightValueR = lsR.getLightValue();
-			deltaLightR = (lightValueR - lastLightValueR);
-			if(deltaLightR < -4)
-			{
-				darkR = true;
-			}
 			
 			if((deltaLightL > 4) && darkL)	// checks if derivative went from negative to positive
 			{
@@ -339,7 +299,7 @@ public class Localization {
 				Sound.setVolume(20);
 				Sound.beep();		// Audio visual notification of line pass
 			}
-			lastLightValueL = lsL.getLightValue();
+			
 			
 			if((deltaLightR > 4) && darkR)	// checks if derivative went from negative to positive
 			{
@@ -348,7 +308,7 @@ public class Localization {
 				Sound.setVolume(20);
 				Sound.beep();		// Audio visual notification of line pass
 			}
-			lastLightValueR = lsR.getLightValue();
+		
 			
 			try
 			{
