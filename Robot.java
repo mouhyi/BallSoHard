@@ -106,6 +106,7 @@ public class Robot {
 	 * Drive {@param: distance} in a straight line
 	 * @param distance
 	 * @author Mouhyi
+	 * @todo test: wheel.rotate twice??
 	 */
 	public void goForward(double distance, int speed) {
 		this.stop();
