@@ -7,27 +7,29 @@
 */
 
 import lejos.nxt.*;
+import lejos.nxt.comm.RConsole;
 
 public class Localization {
 
 	// Fields
-	private Coordinates coords;
+	private Odometer odo;
 	private Robot robot;
-	private LightTimer lsL;
-	private LightTimer lsR;
+	private LightSensor lsL;
+	private LightSensor lsR;
 	private USPoller uspL;
 	private USPoller uspR;
-	private Navigation navigation;
+	
+	private final int SENSOR_THRESHOLD = 4;
+	private final int DETECTION_THRESHOLD = 5;
 
 	// Constructor
-	public Localization(Coordinates coords, Robot robot, LightTimer lsL, LightTimer lsR, USPoller uspL, USPoller uspR, Navigation navigation) {
-		this.coords = coords;
+	public Localization(Odometer odo, Robot robot, LightSensor lsL, LightSensor lsR, USPoller uspL, USPoller uspR) {
+		this.odo = odo;
 		this.robot = robot;
 		this.lsL = lsL;
 		this.lsR = lsR;
 		this.uspL = uspL;
 		this.uspR = uspR;
-		this.navigation = navigation;
 	}
 	
 	
@@ -38,6 +40,9 @@ public class Localization {
 	 */
 	public void doLocalization() {
 		this.doUSLocalization();
+		robot.rotateAxis(45);
+		odo.setCoordinates(0, 0, 0);
+		this.doLightLocalization();
 	}
 
 	/**
@@ -45,159 +50,290 @@ public class Localization {
 	 *
 	 * @author Mouhyi, Joshua David Alfaro
 	 */
-	private  void doUSLocalization() {
-		// Falling Edge Method
+	private  void doUSLocalization()	// Falling and Rising Edge Method
+	{
+		robot.rotate(-SystemConstants.ROTATION_SPEED);	//rotate clockwise
+		
+		// Falling and Rising Edge Method
 		double angleA = 0, angleB = 0;
 		
+		int Wall = 0;
 		int noWall = 0;
-		boolean first_rot = true;
-		boolean second_rot = false;
-		while (first_rot)
+		boolean first = true;
+		boolean second = false;
+		while (first)	// Checks for rising edge
 		{
-			robot.rotate(SystemConstants.ROTATION_SPEED);	//rotate counterclockwise
+			uspR.run();
 
 			// Reads no wall
-			if (this.uspL.filter() > 50)
+			if (uspR.getDistance() < 30)
 			{
-				noWall = noWall + 1;
+				Wall = Wall + 1;
 			}
 
-			// Reads wall after reading no wall (falling edge)
-			if (noWall >  3 && this.uspL.filter() < 30)
+			// Reads wall after reading no wall (rising edge)
+			if (Wall >  3 && uspR.getDistance() > 50)
 			{
-				first_rot = false;
-				second_rot = true;
+				Sound.beep();
+				first = false;
+				second = true;
 				noWall = 0;
-				angleA = coords.getTheta(); // latch angle
+				angleA = odo.getCoordinates().getTheta(); // latch angle
 			}
 		}
 
-		while (second_rot)
-		{
-			robot.rotate(-SystemConstants.ROTATION_SPEED);		// rotate clockwise
-			
+		while (second)	// Checks for falling edge
+		{	
+			uspR.run();
 			// Reads no wall
-			if (this.uspR.filter() > 50)
+			if (uspR.getDistance() < 50)
 			{
 				noWall = noWall + 1;
 			}
 
 			// Reads wall after reading no wall (falling edge)
-			if (noWall > 3 && this.uspR.filter() < 30)
+			if (noWall > 3 && uspR.getDistance() < 30)
 			{
-				second_rot = false;
+				Sound.beep();
+				second = false;
 				noWall = 0;
-				angleB = coords.getTheta(); // latch angle
+				angleB = odo.getCoordinates().getTheta(); // latch angle
 			}
 			
 			
 		}
 		robot.stop();
-		double theta = 45 + Odometer.adjustAngle(angleA - angleB)/2;
 		
-		coords.set(0,0,theta);
-	}
-	
-	/**
-	 * Preparation for light localization
-	 * 
-	 * @author Ryan
-	 */
-	
-	private void positionRobot(){
+		// Computation of new angle
+		double theta = Odometer.adjustAngle(90 - Odometer.adjustAngle(angleA - angleB)/2);
+		LCD.drawString("anlgeA "+ angleA +" ", 0, 3);
+		LCD.drawString("angleB "+ angleB +" ", 0, 4);
+		LCD.drawString("newtheta "+ theta +" ", 0, 5);
 		
-		//Moves the robot to face wall to the left
-		navigation.turnTo(90, true);
-		
-		//Reverse until the robot is near the gridline
-		while(uspL.filter() < 25){
-			robot.advance(-SystemConstants.FORWARD_SPEED);
-		}
-		
-		//Moves the robot to face the bottom wall
-		navigation.turnTo(180, true);
-		
-		while(uspL.filter() < 25){
-			robot.advance(-SystemConstants.FORWARD_SPEED);
-		}
-		
+		odo.setCoordinates(0, 0, theta, new boolean[] { false, false, true });
 	}
 
 	/**
 	 * Light Localization routine
 	 *
-	 * @author Mouhyi, Ryan
+	 * @author Mouhyi
 	 */
-	private void doLightLocalization() {
+	private void doLightLocalization()
+	{
+		// Timer for light sensor depending on speed of robot.
+		robot.rotate(SystemConstants.ROTATION_SPEED);
+		LightTimer leftLight = new LightTimer(lsL, robot.getSpeed());
+		LightTimer rightLight = new LightTimer(lsR, robot.getSpeed());
+
+		boolean leftDone = true;
+		int gridLineCountL = 0;
+		boolean linePassedL = false;
+		double[] angleL = {0, 0, 0, 0};
 		
-		double[] yIntercepts = new double[2];
-		double[] xIntercepts = new double[2];
-		double thetaY;
-		double thetaX;
-		double changeInTheta;
-		double x, y;
+		boolean rightDone = true;
+		int gridLineCountR = 0;
+		boolean linePassedR = false;
+		double[] angleR = {0, 0, 0, 0};
 		
-		// start rotating and clock all 4 gridlines
-		robot.setSpeeds(0, -40);
-				
-		//While no line is detected, wait
-		lsL.resetLine();
-						
-		while (!lsL.lineDetected()) {}
+		double xOffset, yOffset, thetaOffset;
+		
+		while(leftDone || rightDone)
+		{
+			robot.rotate(SystemConstants.ROTATION_SPEED);
 			
-		Sound.beep();
-		//Record angle at which line is detected
-		yIntercepts[0] = coords.getTheta();
-		
-		//Wait before resetting line to prevent multiple lines from being detected consecutively
-		try{
-			Thread.sleep(1000);
-		}catch(Exception e){}
-					
-		lsL.resetLine();
-
-		//repeat the above 3 more times to read the other lines
-		while (!lsL.lineDetected()) {}
-		Sound.beep();
-		xIntercepts[0] = coords.getTheta();
+			if(leftLight.lineDetected())
+			{
+				gridLineCountL = gridLineCountL + 1;
+				linePassedL = true;
+				Sound.setVolume(20);
+				Sound.beep();
+			}
 				
-		try{
-			Thread.sleep(1000);
-		}catch(Exception e){}
+			if(rightLight.lineDetected())
+			{
+				gridLineCountR = gridLineCountR + 1;
+				linePassedR = true;
+				Sound.setVolume(20);
+				Sound.beep();
+			}
+			
+			// latch angles into memory only after a line pass
+			if(linePassedL)
+			{
+				switch(gridLineCountL)	
+				{	
+				case 1:
+					angleL[0] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[0]  " + angleL[0]);
+					break;
+				case 2:
+					angleL[1] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[1]  " + angleL[1]);
+					break;
+				case 3:
+					angleL[2] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[2]  " + angleL[2]);
+					break;
+				case 4:
+					angleL[3] = odo.getCoordinates().getTheta();
+					RConsole.println("angleL[3]  " + angleL[3]);
+					leftDone = false;
 					
-		lsL.resetLine();
-		
-		//Detect third line	
-		while (!lsL.lineDetected()) {}
-		
-		Sound.beep();
-		yIntercepts[1] = coords.getTheta();
-		try{
-			Thread.sleep(1000);
-		}catch(Exception e){}
-					
-		lsL.resetLine();
-
-		//Detect fourth line
-		while (!lsL.lineDetected()) {}
-		Sound.beep();
-		xIntercepts[1] = coords.getTheta();
-		try{
-			Thread.sleep(1000);
-		}catch(Exception e){}
-					
-		lsL.resetLine();
+					break;
+				default:
+					break;
+				}
 				
-		// Calculate point (0,0) and 0 degrees
-		thetaY = yIntercepts[1]-yIntercepts[0]-SystemConstants.LS_ANGLE_OFFSET;
-		thetaX = xIntercepts[1]-xIntercepts[0]-SystemConstants.LS_ANGLE_OFFSET;
-		x = -SystemConstants.LS_MIDDLE*Math.cos(Math.toRadians(thetaY/2));
-		y = -SystemConstants.LS_MIDDLE*Math.cos(Math.toRadians(thetaX/2));
+				linePassedL = false;
+				// so that it doesn't read multiple times
+				/*try
+				{
+					Thread.sleep(100);
+				}
+				catch (InterruptedException e)
+				{
+				
+				}*/
+				leftLight.resetLine();
+			}
+			
+			// latch angles into memory only after a line pass
+			if(linePassedR)
+			{
+				switch(gridLineCountR)	
+				{	
+				case 1:
+					angleR[0] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[0]  " + angleR[0]);
+					break;
+				case 2:
+					angleR[1] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[1]  " + angleR[1]);
+					break;
+				case 3:
+					angleR[2] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[2]  " + angleR[2]);
+					break;
+				case 4:
+					angleR[3] = odo.getCoordinates().getTheta();
+					RConsole.println("angleR[3]  " + angleR[3]);
+					rightDone = false;
+					
+					break;
+				default:
+					break;
+				}
+				
+				linePassedR = false;
+				// so that it doesn't read multiple times
+				/*try
+				{
+					Thread.sleep(100);
+				}
+				catch (InterruptedException e)
+				{
+				
+				}*/
+				rightLight.resetLine();
+			}			
+			
+			
+			try
+			{
+				Thread.sleep(50);
+			}
+			catch (InterruptedException e)
+			{
+			
+			}
+			
+		}
+		robot.stop();	// stop doing moving and leave loop to perform calculations
 		
-		//compute the correction for angle (delta theta)
-		changeInTheta = ((90-(yIntercepts[0]-SystemConstants.LS_ANGLE_OFFSET-180-thetaY/2))+(90-(xIntercepts[1]-180-thetaX/2)))/2;
+		// Stop timers for light timer detection
+		leftLight.stop();
+		rightLight.stop();
+		
+		
+		// do trig to compute with referecen to real (0,0) and 0 degrees
+		xOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleL[2] - angleL[0])/2)
+				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleR[2] - angleR[0])/2))/2;
+		yOffset = ((-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleL[3] - angleL[1])/2)
+				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos((angleR[3] - angleR[1])/2))/2;
+		thetaOffset = (Math.abs(angleL[3] - angleL[0]) - 90 - Math.abs(angleL[2] - angleL[0])/2 
+				+ Math.abs(angleR[3] - angleR[0]) - 90 - Math.abs(angleR[2] - angleR[0])/2)/2;
+		
+		odo.setCoordinates(xOffset, yOffset, thetaOffset, new boolean[] {true, true, true});
 	
-		coords.set(x, y, changeInTheta);
+	}
+	
+	/**
+	 * Light Localization routine 2
+	 *
+	 * @author Mouhyi, josh
+	 */
+	private void doLightLocalization2()
+	{
+		double time_left = 0, time_right = 0;
+		boolean leftNotSeen = true, rightNotSeen = true;
+		
+		boolean darkL = false;
+		int lightValueL;
+		//int lastLightValueL = lsL.getLightValue();
+		int deltaLightL = 0;
+		
+		boolean darkR = false;
+		int lightValueR;
+		int deltaLightR = 0;
+		
+		while(leftNotSeen || rightNotSeen)
+		{
+			robot.advance(5);		// for some reason it needs to be called twice to work
+			
+			
+			
+			if((deltaLightL > 4) && darkL)	// checks if derivative went from negative to positive
+			{
+				time_left = System.currentTimeMillis();
+				leftNotSeen = false;
+				Sound.setVolume(20);
+				Sound.beep();		// Audio visual notification of line pass
+			}
+			
+			
+			if((deltaLightR > 4) && darkR)	// checks if derivative went from negative to positive
+			{
+				time_right = System.currentTimeMillis();
+				rightNotSeen = false;
+				Sound.setVolume(20);
+				Sound.beep();		// Audio visual notification of line pass
+			}
+		
+			
+			try
+			{
+				Thread.sleep(50);
+			}
+			catch (InterruptedException e)
+			{
+			
+			}
+		}
+		
+		double time_difference = Math.abs(time_right - time_left);
+		
+		double theta = Math.atan(time_difference*SystemConstants.FORWARD_SPEED/SystemConstants.LS_WIDTH);
+		
+		if(time_right > time_left)
+		{
+			robot.rotateAxis(90 + theta);
+		}
+		else
+		{
+			robot.rotateAxis(90 - theta);
+		}
+		
+		odo.setCoordinates(SystemConstants.LS_WIDTH*Math.tan(theta)/2, 0.0, 0, new boolean[] {true, false, true });
 	}
 }
 
