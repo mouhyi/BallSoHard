@@ -50,6 +50,7 @@ public class Localization {
 	private  void doUSLocalization()	// Falling and Rising Edge Method
 	{
 		robot.rotate(-SystemConstants.ROTATION_SPEED);	//rotate clockwise
+		robot.rotate(-SystemConstants.ROTATION_SPEED);
 		
 		// Falling and Rising Edge Method
 		double angleA = 0, angleB = 0;
@@ -160,23 +161,40 @@ public class Localization {
 				switch(gridLineCountL)	
 				{	
 				case 1:
-					angleL[0] = odo.getCoordinates().getTheta();
+					angleL[gridLineCountL -1] = odo.getCoordinates().getTheta();
 					RConsole.println("angleL[0]  " + angleL[0]);
 					break;
 				case 2:
-					angleL[1] = odo.getCoordinates().getTheta();
+					angleL[gridLineCountL -1] = odo.getCoordinates().getTheta();
+					// To avoid wrap around which would currently ruin computation
+					if(angleL[gridLineCountL -1] < angleL[gridLineCountL-2])
+					{
+						angleL[gridLineCountL -1] += 360;
+					}
 					RConsole.println("angleL[1]  " + angleL[1]);
 					break;
 				case 3:
-					angleL[2] = odo.getCoordinates().getTheta();
+					angleL[gridLineCountL -1] = odo.getCoordinates().getTheta();
+					// To avoid wrap around which would currently ruin computation
+					if(angleL[gridLineCountL -1] < angleL[gridLineCountL-2])
+					{
+						angleL[gridLineCountL -1] += 360;
+					}
 					RConsole.println("angleL[2]  " + angleL[2]);
 					break;
 				case 4:
-					angleL[3] = odo.getCoordinates().getTheta();
+					angleL[gridLineCountL -1] = odo.getCoordinates().getTheta();
+					// To avoid wrap around which would currently ruin computation
+					if(angleL[gridLineCountL -1] < angleL[gridLineCountL -2])
+					{
+						angleL[gridLineCountL -1] += 360;
+					}
 					RConsole.println("angleL[3]  " + angleL[3]);
 					leftDone = false;
 					break;
 				default:
+					// error handling
+					//this.doLocalization();
 					break;
 				}
 				
@@ -190,23 +208,38 @@ public class Localization {
 				switch(gridLineCountR)	
 				{	
 				case 1:
-					angleR[0] = odo.getCoordinates().getTheta();
+					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
 					RConsole.println("angleR[0]  " + angleR[0]);
 					break;
 				case 2:
-					angleR[1] = odo.getCoordinates().getTheta();
+					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
+					// To avoid wrap around which would currently ruin computation
+					if(angleR[gridLineCountR -1] < angleR[gridLineCountR -2])
+					{
+						angleR[gridLineCountR -1] += 360;
+					}
 					RConsole.println("angleR[1]  " + angleR[1]);
 					break;
 				case 3:
-					angleR[2] = odo.getCoordinates().getTheta();
+					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
+					if(angleR[gridLineCountR -1] < angleR[gridLineCountR -2])
+					{
+						angleR[gridLineCountR -1] += 360;
+					}
 					RConsole.println("angleR[2]  " + angleR[2]);
 					break;
 				case 4:
-					angleR[3] = odo.getCoordinates().getTheta();
+					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
+					if(angleR[gridLineCountR -1] < angleR[gridLineCountR -2])
+					{
+						angleR[gridLineCountR -1] += 360;
+					}
 					RConsole.println("angleR[3]  " + angleR[3]);
 					rightDone = false;
 					break;
 				default:
+					// error handling
+					//this.doLocalization();
 					break;
 				}
 				
@@ -228,8 +261,17 @@ public class Localization {
 				+ (-1)*SystemConstants.LS_TOCENTRE*Math.cos(Math.toRadians((angleR[3] - angleR[1])/2)))/2;
 		
 		// needs work, WORSE CASE = set to 30 degrees since it seems to stop around there.
-		thetaOffset = (Math.abs(angleL[3] - angleL[0]) - 90 - Math.abs(angleL[2] - angleL[0])/2 
-				+ Math.abs(angleR[3] - angleR[0]) - 90 - Math.abs(angleR[2] - angleR[0])/2)/2;
+		// y = mx + b
+		double m = 90/((angleR[3] + angleL[1])/2 - (angleR[2] + angleL[0])/2);
+		double b = 180 - (m)*(angleR[2] + angleL[0])/2;
+		
+		RConsole.println("m  " + m);
+		RConsole.println("x  " + odo.getCoordinates().getTheta());
+		RConsole.println("b  " + b);
+		
+		thetaOffset = Odometer.adjustAngle(m*odo.getCoordinates().getTheta() + b);
+		/*thetaOffset = (Math.abs(angleL[3] - angleL[0]) - 90 - Math.abs(angleL[2] - angleL[0])/2 
+				+ Math.abs(angleR[3] - angleR[0]) - 90 - Math.abs(angleR[2] - angleR[0])/2)/2;*/
 		
 		odo.setCoordinates(xOffset, yOffset, thetaOffset, new boolean[] {true, true, true});
 	}
