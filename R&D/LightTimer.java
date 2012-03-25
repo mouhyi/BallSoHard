@@ -4,8 +4,8 @@ import lejos.util.*;
 public class LightTimer implements TimerListener
 {
 	
-	private final int SENSOR_THRESHOLD = 15;
-	private final int DETECTION_THRESHOLD = 15;
+	private final int SENSOR_THRESHOLD = 16;
+	private final int DETECTION_THRESHOLD = 16;
 	private int[] lightValue = new int[6];
 	private LightSensor sensor; 
 	private Timer lightTimer;
