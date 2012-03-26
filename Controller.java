@@ -16,27 +16,15 @@ public class Controller {
 		Button.waitForPress();
 		
 		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
-		//Odometer odo = new Odometer(robot);
-		/*OdoCorrection snapper = new OdoCorrection(odo, robot);
+		Odometer odo = new Odometer(robot);
+		OdoCorrection snapper = new OdoCorrection(odo, robot);
 		snapper.setEnabled(true);
 		
-		LineDetector.init(snapper);*/
+		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
 		
-		//Printer lcd = new Printer(odo);
+		Printer lcd = new Printer(odo);
 		
-		/**
-		 * Testing: Tweek SystemConstants.WIDTH
-		 * Rotate the robot 'turnsNumber' times about its center and change the value
-		 * of SystemConstants.WIDTH Accordingly until it comes back exactly
-		 * to its starting position.
-		 * if robot stops beyond the starting position : decrement WIDTH
-		 * otherwise, increment WIDTH
-		 */
-		
-		int turnsNumber = 6;  // start with 6 and until 10
-		robot.rotateAxis(turnsNumber *360, (int) SystemConstants.ROTATION_SPEED);
 	
-
 		
 	
 		Button.waitForPress();

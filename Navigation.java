@@ -9,8 +9,8 @@ public class Navigation {
 	private Odometer odo;
 	private Robot robot;
 
-	private static final int ROTATION_TOLERANCE = 1; // in Deg
-	private static final int DISTANCE_TOLERANCE = 1; // in Deg
+	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
+	private static final double DISTANCE_TOLERANCE = 1; // in cm
 
 	/**
 	 * Constructor
@@ -31,7 +31,7 @@ public class Navigation {
 	 * @author Mouhyi
 	 */
 	public void travelTo(double x, double y) {
-		double distance;
+		//double distance;
 		Coordinates coords;
 		double destAngle;
 
@@ -40,15 +40,19 @@ public class Navigation {
 		destAngle = Odometer.convertToDeg(destAngle);
 		turnTo(destAngle);
 
-		coords = odo.getCoordinates();
+		/*coords = odo.getCoordinates();
 		distance = getDistance(x, y, coords.getX(), coords.getY());
 
-		robot.goForward(distance, (int) SystemConstants.FORWARD_SPEED);
+		robot.goForward(distance, (int) SystemConstants.FORWARD_SPEED);*/
 
-		while(distance > DISTANCE_TOLERANCE){
+		while(true){
 			coords = odo.getCoordinates();
-			distance = getDistance(x, y, coords.getX(), coords.getY());
-		}
+			if (Math.abs(x-coords.getX()) <DISTANCE_TOLERANCE
+					&& Math.abs(y-coords.getY()) <DISTANCE_TOLERANCE ){
+				break;
+			}
+			robot.advance(SystemConstants.FORWARD_SPEED);
+		}	
 		robot.stop();
 
 	}
@@ -60,10 +64,10 @@ public class Navigation {
 	 */
 	public void turnTo(double destAngle) {
 		double err;
+		destAngle = Odometer.adjustAngle(destAngle);
 		do {
-			destAngle = Odometer.adjustAngle(destAngle);
 			double curTheta = odo.getCoordinates().getTheta();
-			double rotAngle = minimumAngleFromTo(destAngle, curTheta);
+			double rotAngle = minimumAngleFromTo(curTheta, destAngle);
 
 			robot.rotateAxis(rotAngle, (int) SystemConstants.ROTATION_SPEED);
 
@@ -72,7 +76,13 @@ public class Navigation {
 			err = destAngle - curTheta;
 
 		} while (Math.abs(err) > ROTATION_TOLERANCE);
+		robot.stop();
 
+	}
+	
+	public void navCorrect(){
+		robot.goForward(SystemConstants.TILE, (int)SystemConstants.FORWARD_SPEED);
+		turnTo(odo.getDirection() * 90);
 	}
 
 	/**
