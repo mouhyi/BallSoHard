@@ -56,8 +56,8 @@ public class SystemConstants {
 	 * 			 					  LS_WIDTH
 	 */
 	
-	public static final double FORWARD_SPEED = 150; 	// 150		// cm/s
-	public static final double ROTATION_SPEED = 40.0;
+	public static final double FORWARD_SPEED = 10; 	// 150		// cm/s
+	public static final double ROTATION_SPEED = 8.0;
 	
 	// 1 foot= 30.48cm	  	
  	public static double TILE = 30.48;

@@ -1,3 +1,5 @@
+import lejos.nxt.LCD;
+
 /**
  * Movement control class
  * 
@@ -34,11 +36,21 @@ public class Navigation {
 		//double distance;
 		Coordinates coords;
 		double destAngle;
-
+		
+		robot.stop();
+		
+		try{
+			Thread.sleep(1000);
+		}catch(Exception e){;}
+		
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
 		turnTo(destAngle);
+		
+		try{
+			Thread.sleep(1000);
+		}catch(Exception e){;}
 
 		/*coords = odo.getCoordinates();
 		distance = getDistance(x, y, coords.getX(), coords.getY());
@@ -49,8 +61,10 @@ public class Navigation {
 			coords = odo.getCoordinates();
 			if (Math.abs(x-coords.getX()) <DISTANCE_TOLERANCE
 					&& Math.abs(y-coords.getY()) <DISTANCE_TOLERANCE ){
+				LCD.drawString("ARRIVED           ", 0, 5);
 				break;
 			}
+			LCD.drawString("ADVANCE	           ", 0, 5);
 			robot.advance(SystemConstants.FORWARD_SPEED);
 		}	
 		robot.stop();
@@ -65,6 +79,9 @@ public class Navigation {
 	public void turnTo(double destAngle) {
 		double err;
 		destAngle = Odometer.adjustAngle(destAngle);
+		
+		robot.stop();
+		
 		do {
 			double curTheta = odo.getCoordinates().getTheta();
 			double rotAngle = minimumAngleFromTo(curTheta, destAngle);
@@ -80,9 +97,39 @@ public class Navigation {
 
 	}
 	
+	/**
+	 * Drive one TILE and correct orientation
+	 * @author Mouhyi
+	 */
 	public void navCorrect(){
 		robot.goForward(SystemConstants.TILE, (int)SystemConstants.FORWARD_SPEED);
+		try{
+			Thread.sleep(1000);
+		}catch(Exception e){;}
 		turnTo(odo.getDirection() * 90);
+	}
+	
+	/**
+	 * Assumes the robot is facing the right direction
+	 * @param x
+	 */
+	public void TravelToX( double x){
+		boolean obstacle =false;
+		Coordinates coords ;
+		double curX ;
+		
+		
+		do{	
+			// update coords
+			coords = odo.getCoordinates();
+			curX = coords.getX();
+			
+			// TODO update obstacle
+			
+			
+		}
+		while(Math.abs( curX- x)> SystemConstants.TILE  && !obstacle );
+		
 	}
 
 	/**

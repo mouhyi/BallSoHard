@@ -37,7 +37,7 @@ public class Localization {
 	 */
 	public void doLocalization() {
 		this.doUSLocalization();
-		robot.rotateAxis(45);
+		robot.rotateAxis(45, (int)SystemConstants.ROTATION_SPEED);
 		odo.setCoordinates(0, 0, 0);
 		this.doLightLocalization();
 	}
@@ -315,11 +315,11 @@ public class Localization {
 		
 		if(time_right > time_left)
 		{
-			robot.rotateAxis(90 + theta);
+			robot.rotateAxis(90 + theta, (int)SystemConstants.ROTATION_SPEED);
 		}
 		else
 		{
-			robot.rotateAxis(90 - theta);
+			robot.rotateAxis(90 - theta, (int)SystemConstants.ROTATION_SPEED);
 		}
 		
 		odo.setCoordinates(SystemConstants.LS_WIDTH*Math.tan(theta)/2, 0.0, 0, new boolean[] {true, false, true });

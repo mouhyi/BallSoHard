@@ -1,4 +1,5 @@
 import lejos.nxt.Button;
+import lejos.nxt.LCD;
 import lejos.nxt.comm.RConsole;
 
 
@@ -22,10 +23,19 @@ public class Controller {
 		
 		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
 		
+		Navigation nav = new Navigation(odo, robot);
+		
 		Printer lcd = new Printer(odo);
 		
-	
+		// Drive Square
+		//nav.travelTo(2*SystemConstants.TILE, 0);
+		/*nav.travelTo(2*SystemConstants.TILE, 3*SystemConstants.TILE);
+		nav.travelTo(0, 2*SystemConstants.TILE);
+		nav.travelTo(0, 0);*/
 		
+		robot.goForward(2*SystemConstants.TILE, (int) SystemConstants.FORWARD_SPEED);
+		
+		//LCD.drawString("ARRIVED           ", 0, 5);
 	
 		Button.waitForPress();
 

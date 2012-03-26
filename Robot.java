@@ -149,7 +149,6 @@ public class Robot {
 	 */
 	public void advance(double Fspeed) {
 		this.setSpeeds(Fspeed, 0);
-		this.stop();
 	}
 
 	/**
