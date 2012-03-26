@@ -22,7 +22,6 @@ public class NavigationControl implements TimerListener {
 
 	/** minimum distance necessary for the robot to move forward */
 	public static final int ObstacleDist = 55;
-
 	/*
 	 * Initializes the navigation control
 	 * 
