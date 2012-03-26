@@ -107,13 +107,26 @@ public class OdoCorrection {
 						
 						if(curDirection % 2 == 0){
 							double x = pos.getX();
+							double axis;
 							// ls.mid == robot.center???
-							double axis = Math.round(x / SystemConstants.TILE ) *SystemConstants.TILE;
 							
+							/*
+							 * Axis depends on which direction robot is facing
+							 * @author Ryan
+							 */
+							
+							//Facing east
+							if(curDirection == 0){
+								axis = Math.round((x-SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) *SystemConstants.TILE;
+							}
+							//Facing west
+							else{
+								axis = Math.round((x+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
+							}
 							RConsole.println("Original x: "+String.valueOf(pos.getX()));
 							
 							//Changed calculation
-							x= axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
+							x = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
 							
 							/*	ORIGINAL
 							 * 	The first line correction always results in a negative x value
@@ -122,19 +135,34 @@ public class OdoCorrection {
 							// x-= LS_Offset
 							
 							RConsole.println("New x: " + String.valueOf(x));
-		
+									
 							odo.setCoordinates(x, 0, theta, new boolean[] {true, false, true});	
 						}
 						
 						if(curDirection % 2 == 1){
 							double y = pos.getY();
+							double axis;
+							
 							// ls.mid == robot.center???
-							double axis = Math.round(y / SystemConstants.TILE ) *SystemConstants.TILE;
+							
+							/*
+							 * Change axis depending on current direction
+							 * @author Ryan
+							 */
+							
+							//Facing North
+							if(curDirection == 1){
+								axis = Math.round((y-SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) *SystemConstants.TILE;
+							}
+							//Facing South
+							else{
+								axis = Math.round((y+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
+							}
 							RConsole.println("Original y: " +String.valueOf(pos.getY())); 
 							
 							
 							//Changed calculation
-							y = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+SystemConstants.LS_ANGLE_OFFSET));
+							y = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
 							
 							//ORIGINAL
 							//y = axis + ( distTraveled - SystemConstants.LS_MIDDLE  )/2 * Math.sin(theta);

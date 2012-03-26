@@ -1,5 +1,6 @@
 import lejos.nxt.LCD;
 import lejos.nxt.LightSensor;
+import lejos.nxt.Sound;
 import lejos.nxt.comm.*;
 
 import lejos.util.Timer;
@@ -15,19 +16,16 @@ import lejos.util.TimerListener;
 public class LineDetector implements TimerListener {
 
 	private final int SENSOR_THRESHOLD = 15;
-	private final int DETECTION_THRESHOLD = 15;
+	private final int DETECTION_THRESHOLD = 41;
 	private int[] lightValue = new int[6];
 	private double robotSpeed;
+	private boolean lineDetected = false;
 	LightSensor ls;
-	static final int THRESHOLD = 450;
-	int last_reading;
 	private boolean isleft;
 
 	private OdoCorrection snapper;
 
 	Timer timer;
-	// update period, in ms
-	private static final int PERIOD = 25;
 	
 	// instances of this class
 	public static LineDetector left;
@@ -48,7 +46,9 @@ public class LineDetector implements TimerListener {
 		this.snapper = snapper;
 		this.robotSpeed = robotSpeed;
 		
-		Timer timer = new Timer((int)(166/this.robotSpeed), this); 			// 166/this.robotSpeed
+		int refreshRate = 166/(int)this.robotSpeed;				// 166/this.robotSpeed
+		
+		Timer timer = new Timer(refreshRate, this); 			
 		timer.start();
 	}
 	
@@ -65,8 +65,6 @@ public class LineDetector implements TimerListener {
 	 */
 	public void timedOut() {
 		
-		
-		/*
 		int i;
 		int maxIndex = lightValue.length-1;
 
@@ -79,42 +77,43 @@ public class LineDetector implements TimerListener {
 		if(!(Math.abs(lightValue[maxIndex]-ls.getNormalizedLightValue()) < SENSOR_THRESHOLD)){
 			lightValue[maxIndex]=ls.getNormalizedLightValue();
 		}
-				
+		
 		//Detects a line if there is first a positive difference in light, then negative
 		if(lightValue[0]-lightValue[1]>= DETECTION_THRESHOLD &&
 		  (lightValue[1]-lightValue[2]<=-DETECTION_THRESHOLD || 
 		   lightValue[2]-lightValue[3]<=-DETECTION_THRESHOLD ||
 		   lightValue[3]-lightValue[4]<=-DETECTION_THRESHOLD ||
 		   lightValue[4]-lightValue[5]<=-DETECTION_THRESHOLD)){
-		
-			if(this == left){
-				RConsole.println("Left line detected");
-			}
-			else if(this == right){
-				RConsole.println("Right line detected");
-			}
 			
-				notifyListener();
-				
+				if(this == left){
+					RConsole.println("Left line detected");
+				}
+				else if(this == right){
+					RConsole.println("Right line detected");
+				}
+
+			
 				// Clear out the line condition
 				for(i=0; i<maxIndex; i++){
 					lightValue[i]=lightValue[i+1];
 				}
+				
+				lineDetected = true;
+				notifyListener();
+				
+				/*
+				 * Move the delay here to accommodate localization routine
+				 */
+				
+				/*
 				// Delay to reduce risk of counting line again
 				try
 				{
 					Thread.sleep((int)(500/this.robotSpeed));
 				}
 				catch (InterruptedException e){}
+				*/
 		}
-		
-		last_reading = lightValue[maxIndex];
-		*/
-
-		int new_reading = ls.getNormalizedLightValue();
-		if (new_reading < THRESHOLD && last_reading > THRESHOLD)
-			notifyListener();
-		last_reading = new_reading;
 		
 	}
 
@@ -141,13 +140,31 @@ public class LineDetector implements TimerListener {
 		
 		LCD.drawString("LINE "+isleft, 0, 5);
 		try {
-			Thread.sleep(2000);
+			
+			 //Changed wait time from 2000 to 500
+			 Thread.sleep(500);
 			LCD.drawString("LINE         ", 0, 5);
 		} catch (InterruptedException e) {}
 	}
 
 	public boolean isLeft() {
 		return isleft;
+	}
+	
+	/**
+	 * @author Ryan
+	 * @return Boolean determining whether a line has been detected or not
+	 */
+	public boolean lineDetected(){
+		return lineDetected;
+	}
+	
+	/**
+	 * Returns line to false
+	 * @author Ryan
+	 */
+	public void resetLine(){
+		lineDetected = false;
 	}
 
 }
