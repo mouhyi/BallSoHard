@@ -16,21 +16,10 @@ public class Controller {
 		//RConsole.openBluetooth(30000);
 
 		Button.waitForPress();
-		
-		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
-		Odometer odo = new Odometer(robot);
-		OdoCorrection snapper = new OdoCorrection(odo, robot);
-		snapper.setEnabled(true);
-		
-		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
-		
-		Navigation nav = new Navigation(odo, robot);
-		
-		Printer lcd = new Printer(odo);
-		
+
 		BluetoothConnection conn = new BluetoothConnection();
 		Transmission t = conn.getTransmission();
-		
+
 		int w1 = 0;
 		int w2 = 0;
 		int bx = 0;
@@ -51,6 +40,17 @@ public class Controller {
 			// print out the transmission information
 			conn.printTransmission();
 		}
+		
+		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
+		Odometer odo = new Odometer(robot);
+		OdoCorrection snapper = new OdoCorrection(odo, robot);
+		snapper.setEnabled(true);
+		
+		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
+		
+		Navigation nav = new Navigation(odo, robot);
+		
+		Printer lcd = new Printer(odo);
 		
 //		nav.travelTo((double)bx, (double)by);
 		
