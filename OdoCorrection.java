@@ -26,7 +26,7 @@ public class OdoCorrection {
 	private double tachoCount;
 
 	private long startTime;
-	private static int timedout = 1000;
+	private static int timedout = 5000;
 
 	public OdoCorrection(Odometer odo, Robot robot) {
 		this.odo = odo;
@@ -123,10 +123,20 @@ public class OdoCorrection {
 							else{
 								axis = Math.round((x+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
 							}
+							
+							RConsole.println("Original theta: "+ String.valueOf(pos.getTheta()));
+							
 							RConsole.println("Original x: "+String.valueOf(pos.getX()));
 							
 							//Changed calculation
 							x = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
+							
+							RConsole.println("Axis: "+String.valueOf(axis));
+							
+							
+							double TmpX = axis + ( distTraveled)/2 * Math.cos(theta)  + SystemConstants.LS_MIDDLE  ;
+							
+							RConsole.println("TmpX: "+String.valueOf(TmpX));
 							
 							/*	ORIGINAL
 							 * 	The first line correction always results in a negative x value
@@ -134,9 +144,9 @@ public class OdoCorrection {
 							//x = axis + ( distTraveled - SystemConstants.LS_MIDDLE )/2 * Math.cos(theta);
 							// x-= LS_Offset
 							
-							RConsole.println("New x: " + String.valueOf(x));
+							RConsole.println("New x: " + String.valueOf(TmpX));
 									
-							odo.setCoordinates(x, 0, theta, new boolean[] {true, false, true});	
+							odo.setCoordinates(TmpX, 0, theta, new boolean[] {true, false, true});	
 						}
 						
 						if(curDirection % 2 == 1){
@@ -164,6 +174,8 @@ public class OdoCorrection {
 							//Changed calculation
 							y = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
 							
+							double TmpY = axis + ( distTraveled)/2 * Math.sin(theta)  + SystemConstants.LS_MIDDLE  ;
+							
 							//ORIGINAL
 							//y = axis + ( distTraveled - SystemConstants.LS_MIDDLE  )/2 * Math.sin(theta);
 							// x-= LS_Offset
@@ -171,7 +183,7 @@ public class OdoCorrection {
 							
 							RConsole.println("New y: "+String.valueOf(y));
 							
-							odo.setCoordinates(0, y, theta, new boolean[] {false, true, true});
+							odo.setCoordinates(0, TmpY, theta, new boolean[] {false, true, true});
 						}
 						
 						// reset
@@ -196,7 +208,7 @@ public class OdoCorrection {
 			boolean leftFirst) {
 
 		double offsetAngle, x, y, theta;
-
+		
 		offsetAngle = Math.atan(distTraveled / SystemConstants.LS_WIDTH);
 		offsetAngle = Odometer.convertToDeg(offsetAngle);
 		
@@ -210,7 +222,7 @@ public class OdoCorrection {
 		theta = direction * 90 + coef * offsetAngle;
 		theta = Odometer.adjustAngle(theta);
 		
-		RConsole.println("New angle: " + String.valueOf(theta));
+		RConsole.println("New theta: " + String.valueOf(theta));
 
 		return theta;
 	}
