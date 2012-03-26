@@ -15,6 +15,7 @@ public class USPoller implements Runnable {
 	private UltrasonicSensor us;
 	private int median;
 	private boolean obstacleDetected;
+	private Object lock;
 	
 	/**
 	 * Constructor
@@ -74,7 +75,7 @@ public class USPoller implements Runnable {
 	 * Sets a mode for determining whether or an obstacle has been detected
 	 * @author Ryan
 	 */
-	public boolean obstacleDetected(){
+	public synchronized boolean obstacleDetected(){
 		return obstacleDetected;
 	}
 	

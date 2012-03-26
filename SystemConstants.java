@@ -30,7 +30,7 @@ public class SystemConstants {
 	 */
 	public static final double LEFT_RADIUS=2.7220;
 	public static final double RIGHT_RADIUS= 2.7230;   // 2.6380;
-	public static final double WIDTH = 17.095;
+	public static final double WIDTH = 17.155;
 	
 	/*
 	 * CHANGED: LS_ANGLE_OFFSET is measured in degrees

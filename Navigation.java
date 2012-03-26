@@ -13,6 +13,9 @@ public class Navigation {
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
 	private static final double DISTANCE_TOLERANCE = 1; // in cm
+	
+	/** minimum distance necessary for the robot to move forward */
+	public static final int ObstacleDist = 50;
 
 	/**
 	 * Constructor
@@ -97,6 +100,26 @@ public class Navigation {
 
 	}
 	
+	public void GoTo(double x, double y){
+		
+		Coordinates coords;
+		double destAngle;
+		
+		coords = odo.getCoordinates();
+		
+		// face the right direction
+		destAngle = (x > coords.getX()) ? 0 : 180;
+		turnTo(destAngle);
+		// travel along X-axis
+		TravelToX(x);
+		
+		// face the right direction
+		destAngle = (y > coords.getY()) ? 90 : 270;
+		turnTo(destAngle);
+		// travel along X-axis
+		TravelToY(y);
+	}
+	
 	/**
 	 * Drive one TILE and correct orientation
 	 * @author Mouhyi
@@ -110,10 +133,13 @@ public class Navigation {
 	}
 	
 	/**
+	 * Travels along the X axis until it reachs {@param: x} or an obstacle is detected
 	 * Assumes the robot is facing the right direction
 	 * @param x
+	 * @return 0 if destination reached, -1 if obstacle detected
+	 * @author Mouhyi
 	 */
-	public void TravelToX( double x){
+	public int TravelToX( double x){
 		boolean obstacle =false;
 		Coordinates coords ;
 		double curX ;
@@ -126,11 +152,46 @@ public class Navigation {
 			
 			// TODO update obstacle
 			
+			// go forward one tile
+			navCorrect();
 			
 		}
-		while(Math.abs( curX- x)> SystemConstants.TILE  && !obstacle );
+		while(Math.abs( curX- x)> DISTANCE_TOLERANCE  && !obstacle );
+		if(obstacle) return -1;
+		return 0;
 		
 	}
+	
+	/**
+	 * Travels along the Y axis until it reachs {@param: y} or an obstacle is detected
+	 * Assumes the robot is facing the right direction
+	 * @param y
+	 * @return 0 if destination reached, -1 if obstacle detected
+	 * @author Mouhyi
+	 */
+	public int TravelToY( double y){
+		boolean obstacle =false;
+		Coordinates coords ;
+		double curY ;
+		
+		
+		do{	
+			// update coords
+			coords = odo.getCoordinates();
+			curY = coords.getY();
+			
+			// TODO update obstacle
+			
+			// go forward one tile
+			navCorrect();
+			
+		}
+		while(Math.abs( curY- y)> DISTANCE_TOLERANCE  && !obstacle );
+		if(obstacle) return -1;
+		return 0;
+		
+	}
+	
 
 	/**
 	 * 
