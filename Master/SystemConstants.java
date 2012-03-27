@@ -63,6 +63,8 @@ public class SystemConstants {
 	
 	// 1 foot= 30.48cm	  	
  	public static double TILE = 30.48;
+ 	public static int MAX_X=8;
+ 	public static int MAX_Y=8;
 
 
 }

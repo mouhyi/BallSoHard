@@ -13,16 +13,10 @@ import lejos.util.TimerListener;
 
 public class USPoller implements TimerListener{
 
-	private final int TOLERANCE = 45;
 	private final int REFRESH = 50;
 	private int[] usDistances = new int[5];
 	private UltrasonicSensor us;
 	private int median;
-	private boolean obstacleDetected;
-	private Object lock;
-	
-	public static USPoller left;
-	public static USPoller right;
 
 	/**
 	 * Constructor
@@ -34,18 +28,6 @@ public class USPoller implements TimerListener{
 		Timer timer = new Timer(REFRESH, this);
 		timer.start();
 	}
-	
-	/**
-	 * This method initializes the USPollers and starts collecting US sensor readings
-	 * @param LeftUS, RightUS
-	 * @author Ryan
-	 */
-	
-	public static void startUS(UltrasonicSensor usLeft, UltrasonicSensor usRight){
-		left = new USPoller(usLeft);
-		right = new USPoller(usRight);
-	}
-	
 	
 	/**
      * This method implements run method of the Runnable interface.
@@ -68,11 +50,6 @@ public class USPoller implements TimerListener{
 		filter(usDistances, 0);
 		
 		median = usDistances[middle];	
-				
-		if(median < TOLERANCE){
-			obstacleDetected = true;
-		}
-	
 	}
 	
 	/*
@@ -92,40 +69,12 @@ public class USPoller implements TimerListener{
 		}
 	}
 	
-	/*
-	 * Sets a mode for determining whether or an obstacle has been detected
-	 * @author Ryan
-	 */
-	public static synchronized boolean obstacleDetected(){
-		if(left.obstacleDetected || right.obstacleDetected){
-			return true;
-		}
-		else{
-			return false;
-		}
-		
-	}
-	
 	/**
 	 * Returns the minimum of both filtered ultrasonic sensor readings
 	 * @author Ryan
 	 */
-	public static int getDistance(){
-		if(left.median < right.median){
-			return left.median;
-		}
-		else{
-			return right.median;
-		}
+	public int getDistance(){
+		return median;
 		
-	}
-	
-	/**
-	 * Resets the obstacle to false
-	 * @author Ryan
-	 */
-	
-	public void resetObstacle(){
-		obstacleDetected = false;
 	}
 }	

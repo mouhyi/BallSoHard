@@ -5,17 +5,16 @@ import lejos.nxt.LCD;
 import lejos.nxt.comm.RConsole;
 import bluetooth.*;
 
-
 /**
  * This is the main class that starts all the other threads.
- *
- * @author Mouhyi 
+ * 
+ * @author Mouhyi
  */
 public class Controller {
-	
-	public static void main(String[] args){
-		
-		//RConsole.openBluetooth(30000);
+
+	public static void main(String[] args) {
+
+		RConsole.openUSB(30000);
 
 		Button.waitForPress();
 
@@ -32,39 +31,40 @@ public class Controller {
 		 * 
 		 * // print out the transmission information conn.printTransmission(); }
 		 */
-		
-		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
+
+		Robot robot = new Robot(SystemConstants.leftMotor,
+				SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
 		OdoCorrection snapper = new OdoCorrection(odo, robot);
 		snapper.setEnabled(true);
-		
+
 		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
 		
-		Navigation nav = new Navigation(odo, robot);
 		
+		ObstacleDetection us = new ObstacleDetection(new USPoller(
+				SystemConstants.USL), new USPoller(SystemConstants.USR));
+		
+		Navigation nav = new Navigation(odo, robot, us);
+
+		
+
 		Printer lcd = new Printer(odo);
-		
-		
-		
+
 		// Drive Square
-		/*nav.travelTo(SystemConstants.TILE, 0);
-		nav.travelTo(2*SystemConstants.TILE, 0);
-		nav.travelTo(2*SystemConstants.TILE, SystemConstants.TILE);
-		nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
-		nav.travelTo(SystemConstants.TILE, 2*SystemConstants.TILE);
-		nav.travelTo(0, 2*SystemConstants.TILE);
-		nav.travelTo(0, SystemConstants.TILE);
-		nav.travelTo(0, 0);*/
-		
-		
-		
-		nav.GoTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
-		
-	
+		/*
+		 * nav.travelTo(SystemConstants.TILE, 0);
+		 * nav.travelTo(2*SystemConstants.TILE, 0);
+		 * nav.travelTo(2*SystemConstants.TILE, SystemConstants.TILE);
+		 * nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
+		 * nav.travelTo(SystemConstants.TILE, 2*SystemConstants.TILE);
+		 * nav.travelTo(0, 2*SystemConstants.TILE); nav.travelTo(0,
+		 * SystemConstants.TILE); nav.travelTo(0, 0);
+		 */
+
+		nav.GoTo(2 * SystemConstants.TILE, 2 * SystemConstants.TILE);
+
 		Button.waitForPress();
 
 	}
-	
-	
-	
+
 }

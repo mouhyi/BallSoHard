@@ -12,6 +12,7 @@ public class Navigation {
 
 	private Odometer odo;
 	private Robot robot;
+	private ObstacleDetection us;
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
 	private static final double DISTANCE_TOLERANCE = 1; // in cm
@@ -26,9 +27,10 @@ public class Navigation {
 	 * 
 	 * @author Mouhyi
 	 */
-	public Navigation(Odometer odo, Robot robot) {
+	public Navigation(Odometer odo, Robot robot, ObstacleDetection us) {
 		this.odo = odo;
 		this.robot = robot;
+		this.us = us;
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class Navigation {
 		destAngle = Odometer.convertToDeg(destAngle);
 		turnTo(destAngle);
 
-		if (USPoller.getDistance() < 50)
+		if ( us.getDistance() < ObstacleDist )
 			return false;
 
 		try {
@@ -105,13 +107,19 @@ public class Navigation {
 		robot.stop();
 
 	}
-
+	/**
+	 * Main navigation method
+	 * @param x
+	 * @param y
+	 * @author Mouhyi
+	 */
+	
 	public void GoTo(double x, double y) {
 
 		Coordinates coords;
-		double destAngle;
 		double curX, curY;
 		boolean obstacle = false;
+		int xDiff, yDiff;
 
 		while (true) {
 
@@ -119,7 +127,7 @@ public class Navigation {
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
-				int xDiff = (int) ((x - curX) / SystemConstants.TILE);
+				xDiff = (int) ((x - curX) / SystemConstants.TILE);
 
 				obstacle = travelTo(x - xDiff * SystemConstants.TILE, curY);
 				xDiff--;
@@ -130,13 +138,15 @@ public class Navigation {
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
-				int yDiff = (int) ((y - curY) / SystemConstants.TILE);
+				yDiff = (int) ((y - curY) / SystemConstants.TILE);
 
 				obstacle = travelTo(curX, y - yDiff * SystemConstants.TILE);
 				yDiff--;
 			} while (Math.abs(curY - y) > DISTANCE_TOLERANCE && !obstacle);
 			
-			//if(obstacle) break;
+			//if(obstacle ) call obstacle avoidance
+			// else if destination reached break
+			// else, i.e, obstacle in destination: return -1;
 			break;
 
 		}
@@ -221,10 +231,54 @@ public class Navigation {
 		return 0;
 
 	}
-
+	/**
+	 * Obstacle avoidance Routine
+	 * 
+	 * @author mouhyi
+	 */
 	public void avoidObstacle() {
 		int dir = odo.getDirection();
-		boolean rightBusy = false;
+		boolean rightFree = true;
+		boolean leftFree = true;
+		
+		turnLeft();
+		leftFree = ( us.getDistance()> ObstacleDist );
+		if(leftFree){
+			navCorrect();
+		}else{
+			// go back to original dir
+			turnRight();
+			// then turn right
+			turnRight();
+			rightFree = ( us.getDistance()> ObstacleDist );
+			if(rightFree){
+				navCorrect();
+			}else{
+				turnRight();
+				turnBack();
+				navCorrect();
+			}
+		}
+	}
+	
+	/**
+	 * @author mouhyi
+	 */
+	public void turnLeft(){
+		turnTo( (odo.getDirection()+1) * 90);
+	}
+	/**
+	 * @author mouhyi
+	 */
+	public void turnRight(){
+		turnTo( (odo.getDirection()-1) * 90);
+	}
+	
+	/**
+	 * @author mouhyi
+	 */
+	public void turnBack(){
+		turnTo( ( odo.getDirection() +2 ) * 90);
 	}
 
 	/**

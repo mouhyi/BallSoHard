@@ -1,5 +1,3 @@
-package Master;
-
 /**
 * This class is responsible for performing the localization routine
 * USlocalization is executed first to orients the robot parallel to the Y-axis
@@ -39,7 +37,7 @@ public class Localization {
 	 */
 	public void doLocalization() {
 		this.doUSLocalization();
-		robot.rotateAxis(45, (int)SystemConstants.ROTATION_SPEED);
+		robot.rotateAxis(Odometer.adjustAngle(45 - odo.getCoordinates().getTheta()), 8);
 		odo.setCoordinates(0, 0, 0);
 		this.doLightLocalization();
 	}
@@ -51,8 +49,8 @@ public class Localization {
 	 */
 	private  void doUSLocalization()	// Falling and Rising Edge Method
 	{
-		robot.rotate(-SystemConstants.ROTATION_SPEED);	//rotate clockwise
-		robot.rotate(-SystemConstants.ROTATION_SPEED);
+		robot.rotate(-50);	//rotate clockwise
+		robot.rotate(-50);
 		
 		// Falling and Rising Edge Method
 		double angleA = 0, angleB = 0;
@@ -63,37 +61,37 @@ public class Localization {
 		boolean second = false;
 		while (first)	// Checks for rising edge
 		{
-			uspR.run();
 
-			// Reads no wall
-			if (uspR.getDistance() < 30)
+			// Reads wall
+			if (uspL.getDistance() < 30 && uspR.getDistance() < 30)
 			{
 				Wall = Wall + 1;
 			}
 
-			// Reads wall after reading no wall (rising edge)
-			if (Wall >  3 && uspR.getDistance() > 50)
+			// Reads no wall after reading wall (falling edge)
+			if (Wall >  3 && uspL.getDistance() > 50 && uspR.getDistance() > 50)
 			{
+				Sound.setVolume(20);
 				Sound.beep();
 				first = false;
 				second = true;
-				noWall = 0;
+				Wall = 0;
 				angleA = odo.getCoordinates().getTheta(); // latch angle
 			}
 		}
 
 		while (second)	// Checks for falling edge
 		{	
-			uspR.run();
 			// Reads no wall
-			if (uspR.getDistance() < 50)
+			if (uspL.getDistance() > 50 && uspR.getDistance() > 50)
 			{
 				noWall = noWall + 1;
 			}
 
-			// Reads wall after reading no wall (falling edge)
-			if (noWall > 3 && uspR.getDistance() < 30)
+			// Reads wall after reading  no wall (rising edge)
+			if (noWall > 3 && uspL.getDistance() < 30 && uspR.getDistance() < 30)
 			{
+				Sound.setVolume(20);
 				Sound.beep();
 				second = false;
 				noWall = 0;
@@ -105,7 +103,7 @@ public class Localization {
 		robot.stop();
 		
 		// Computation of new angle
-		double theta = Odometer.adjustAngle(90 - Odometer.adjustAngle(angleA - angleB)/2);
+		double theta = Odometer.adjustAngle(45 - Odometer.adjustAngle(angleA - angleB)/2);
 		LCD.drawString("anlgeA "+ angleA +" ", 0, 3);
 		LCD.drawString("angleB "+ angleB +" ", 0, 4);
 		LCD.drawString("newtheta "+ theta +" ", 0, 5);
@@ -121,7 +119,7 @@ public class Localization {
 	private void doLightLocalization()
 	{
 		// Timer for light sensor depending on speed of robot.
-		robot.rotate(SystemConstants.ROTATION_SPEED);
+		robot.rotate(40);
 		LightTimer leftLight = new LightTimer(lsL, robot.getSpeed());
 		LightTimer rightLight = new LightTimer(lsR, robot.getSpeed());
 
@@ -139,7 +137,7 @@ public class Localization {
 		
 		while(leftDone || rightDone)
 		{
-			robot.rotate(SystemConstants.ROTATION_SPEED);
+			robot.rotate(40);
 			
 			if(leftLight.lineDetected())
 			{
@@ -211,7 +209,7 @@ public class Localization {
 				{	
 				case 1:
 					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
-					RConsole.println("angleR[0]  " + angleR[0]);
+					//RConsole.println("angleR[0]  " + angleR[0]);
 					break;
 				case 2:
 					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
@@ -220,23 +218,25 @@ public class Localization {
 					{
 						angleR[gridLineCountR -1] += 360;
 					}
-					RConsole.println("angleR[1]  " + angleR[1]);
+					//RConsole.println("angleR[1]  " + angleR[1]);
 					break;
 				case 3:
 					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
+					// To avoid wrap around which would currently ruin computation
 					if(angleR[gridLineCountR -1] < angleR[gridLineCountR -2])
 					{
 						angleR[gridLineCountR -1] += 360;
 					}
-					RConsole.println("angleR[2]  " + angleR[2]);
+					//RConsole.println("angleR[2]  " + angleR[2]);
 					break;
 				case 4:
 					angleR[gridLineCountR-1] = odo.getCoordinates().getTheta();
+					// To avoid wrap around which would currently ruin computation
 					if(angleR[gridLineCountR -1] < angleR[gridLineCountR -2])
 					{
 						angleR[gridLineCountR -1] += 360;
 					}
-					RConsole.println("angleR[3]  " + angleR[3]);
+					//RConsole.println("angleR[3]  " + angleR[3]);
 					rightDone = false;
 					break;
 				default:
@@ -247,7 +247,10 @@ public class Localization {
 				
 				linePassedR = false;
 				rightLight.resetLine();
-			}			
+			}
+			
+			//RConsole.println("" + leftLight.getLightValue());
+			RConsole.println("" + leftLight.getSensor().getNormalizedLightValue());
 		}
 		robot.stop();	// stop doing moving and leave loop to perform calculations
 		
@@ -281,6 +284,8 @@ public class Localization {
 	/**
 	 * Light Localization routine 2
 	 *	Drive straight towards line and basically use odometry correction style correction
+	 *This is potentially more accurate but more time consusming
+	 *Not sure if needed if odometry correction works
 	 * @author Mouhyi, JDAlfaro
 	 */
 	private void doLightLocalization2()	// not tested, is another idea, not finished
@@ -317,11 +322,11 @@ public class Localization {
 		
 		if(time_right > time_left)
 		{
-			robot.rotateAxis(90 + theta, (int)SystemConstants.ROTATION_SPEED);
+			robot.rotateAxis(90 + theta, 40);
 		}
 		else
 		{
-			robot.rotateAxis(90 - theta, (int)SystemConstants.ROTATION_SPEED);
+			robot.rotateAxis(90 - theta, 40);
 		}
 		
 		odo.setCoordinates(SystemConstants.LS_WIDTH*Math.tan(theta)/2, 0.0, 0, new boolean[] {true, false, true });
