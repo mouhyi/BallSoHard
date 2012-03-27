@@ -17,29 +17,19 @@ public class Controller {
 
 		Button.waitForPress();
 
-		BluetoothConnection conn = new BluetoothConnection();
-		Transmission t = conn.getTransmission();
-
-		int w1 = 0;
-		int w2 = 0;
-		int bx = 0;
-		int by = 0;
-		int bsigma = 0;
-		
-		if (t == null){
-			LCD.drawString("Failed to read transmission", 0, 5);
-		} else {
-			StartCorner corner = t.startingCorner;
-			PlayerRole role = t.role;
-			w1 = t.w1;
-			w2 = t.w2;
-			bx = t.bx;
-			by = t.by;
-			bsigma = t.bsigma;
-			
-			// print out the transmission information
-			conn.printTransmission();
-		}
+		/*
+		 * BluetoothConnection conn = new BluetoothConnection(); Transmission t
+		 * = conn.getTransmission();
+		 * 
+		 * int w1 = 0; int w2 = 0; int bx = 0; int by = 0; int bsigma = 0;
+		 * 
+		 * if (t == null){ LCD.drawString("Failed to read transmission", 0, 5);
+		 * } else { StartCorner corner = t.startingCorner; PlayerRole role =
+		 * t.role; w1 = t.w1; w2 = t.w2; bx = t.bx; by = t.by; bsigma =
+		 * t.bsigma;
+		 * 
+		 * // print out the transmission information conn.printTransmission(); }
+		 */
 		
 		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
@@ -52,7 +42,8 @@ public class Controller {
 		
 		Printer lcd = new Printer(odo);
 		
-//		nav.travelTo((double)bx, (double)by);
+	
+		nav.navCorrect();
 		
 		// Drive Square
 		//nav.travelTo(2*SystemConstants.TILE, 0);
@@ -60,9 +51,7 @@ public class Controller {
 		nav.travelTo(0, 2*SystemConstants.TILE);
 		nav.travelTo(0, 0);*/
 		
-		robot.goForward(2*SystemConstants.TILE, (int) SystemConstants.FORWARD_SPEED);
-		
-		//LCD.drawString("ARRIVED           ", 0, 5);
+		//nav.TravelToX(3*SystemConstants.TILE);
 	
 		Button.waitForPress();
 
