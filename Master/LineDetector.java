@@ -18,7 +18,7 @@ import lejos.util.TimerListener;
 public class LineDetector implements TimerListener {
 
 	private final int SENSOR_THRESHOLD = 15;
-	private final int DETECTION_THRESHOLD = 41;
+	private final int DETECTION_THRESHOLD = 30;
 	private int[] lightValue = new int[6];
 	private double robotSpeed;
 	private boolean lineDetected = false;
@@ -75,6 +75,8 @@ public class LineDetector implements TimerListener {
 			lightValue[i]=lightValue[i+1];
 		}
 		
+		
+		
 		//Filters out values if the difference between subsequent values is too small
 		if(!(Math.abs(lightValue[maxIndex]-ls.getNormalizedLightValue()) < SENSOR_THRESHOLD)){
 			lightValue[maxIndex]=ls.getNormalizedLightValue();
@@ -87,6 +89,7 @@ public class LineDetector implements TimerListener {
 		   lightValue[3]-lightValue[4]<=-DETECTION_THRESHOLD ||
 		   lightValue[4]-lightValue[5]<=-DETECTION_THRESHOLD)){
 			
+				
 				if(this == left){
 					RConsole.println("Left line detected");
 				}
