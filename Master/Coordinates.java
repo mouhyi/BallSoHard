@@ -1,3 +1,5 @@
+package Master;
+
 /**
  * This is a Wrapper class for for a polar coordinates system
  * 

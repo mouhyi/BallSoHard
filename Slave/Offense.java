@@ -1,3 +1,5 @@
+package Slave;
+
 /**
  * This class allows the robot to shoot balls that it has obtained from the
  * dispenser.

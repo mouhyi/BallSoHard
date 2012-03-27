@@ -1,3 +1,5 @@
+package Master;
+
 /**
  * This class allows the robot to retrieve balls from the dispenser
  * 

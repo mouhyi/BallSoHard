@@ -1,3 +1,5 @@
+package Master;
+
 import lejos.nxt.LCD;
 import lejos.nxt.LightSensor;
 import lejos.nxt.Sound;

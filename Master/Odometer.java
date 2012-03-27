@@ -1,3 +1,5 @@
+package Master;
+
 import lejos.nxt.LCD;
 import lejos.util.Timer;
 import lejos.util.TimerListener;

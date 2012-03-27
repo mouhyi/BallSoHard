@@ -1,3 +1,5 @@
+package Master;
+
 import lejos.nxt.UltrasonicSensor;
 import lejos.util.Timer;
 import lejos.util.TimerListener;

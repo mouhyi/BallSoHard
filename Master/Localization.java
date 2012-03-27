@@ -1,3 +1,5 @@
+package Master;
+
 /**
 * This class is responsible for performing the localization routine
 * USlocalization is executed first to orients the robot parallel to the Y-axis

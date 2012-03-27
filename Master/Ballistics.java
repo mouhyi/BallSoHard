@@ -1,3 +1,5 @@
+package Master;
+
 import java.io.*;
 import javax.bluetooth.*;
 import lejos.nxt.comm.*;

@@ -1,3 +1,5 @@
+package Slave;
+
 /**
  * This class allows the robot to block an opponent's balls by deploying a
  * mechanical defense mechanism.

@@ -1,3 +1,5 @@
+package Master;
+
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.comm.RConsole;
