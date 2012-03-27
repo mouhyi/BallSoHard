@@ -143,6 +143,7 @@ public class Navigation {
 				curX = coords.getX();
 				curY = coords.getY();
 				xDiff = (int) Math.round((x - curX) / SystemConstants.TILE) - 1;
+				if(xDiff==-1) break;
 
 				RConsole.println("xdiff" + xDiff);
 
@@ -160,7 +161,8 @@ public class Navigation {
 			do {
 				obstacle = false;
 				yDiff = (int) Math.round((y - curY) / SystemConstants.TILE) - 1;
-
+				if(yDiff==-1) break;
+				
 				RConsole.println("ydiff" + yDiff);
 
 				obstacle = !travelTo(curX, y - yDiff * SystemConstants.TILE);
