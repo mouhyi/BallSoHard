@@ -1,6 +1,8 @@
+import javax.bluetooth.RemoteDevice;
+
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
-import lejos.nxt.comm.RConsole;
+import lejos.nxt.comm.*;
 import bluetooth.*;
 
 
@@ -13,20 +15,27 @@ public class Controller {
 	
 	public static void main(String[] args){
 		
-		//RConsole.openBluetooth(30000);
+		String slaveName = "T10S";
+		
+		//Connect bluetooth device
+		RemoteDevice slave = Bluetooth.getKnownDevice(slaveName);
+		
+		if(slave == null){
+			LCD.clear();
+			LCD.drawString("Device not found",0, 0);
+			LCD.refresh();
+			try{
+				Thread.sleep(2000);
+			}catch(Exception e){}
+		}
+		
+		BTConnection bluetooth = Bluetooth.connect(slave);
+		
+		
+		
+//		RConsole.openBluetooth(30000);
 
-		Button.waitForPress();
-		
-		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
-		Odometer odo = new Odometer(robot);
-		OdoCorrection snapper = new OdoCorrection(odo, robot);
-		snapper.setEnabled(true);
-		
-		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
-		
-		Navigation nav = new Navigation(odo, robot);
-		
-		Printer lcd = new Printer(odo);
+		/*Button.waitForPress();
 		
 		BluetoothConnection conn = new BluetoothConnection();
 		Transmission t = conn.getTransmission();
@@ -52,6 +61,17 @@ public class Controller {
 			conn.printTransmission();
 		}
 		
+		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
+		Odometer odo = new Odometer(robot);
+		OdoCorrection snapper = new OdoCorrection(odo, robot);
+		snapper.setEnabled(true);
+		
+		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
+		
+		Navigation nav = new Navigation(odo, robot);
+		
+		Printer lcd = new Printer(odo);
+		*/
 //		nav.travelTo((double)bx, (double)by);
 		
 		// Drive Square
@@ -60,7 +80,10 @@ public class Controller {
 		nav.travelTo(0, 2*SystemConstants.TILE);
 		nav.travelTo(0, 0);*/
 		
-		robot.goForward(2*SystemConstants.TILE, (int) SystemConstants.FORWARD_SPEED);
+		/*
+		nav.turnTo(10);
+		robot.goForward(SystemConstants.TILE, (int) SystemConstants.FORWARD_SPEED);
+		*/
 		
 		//LCD.drawString("ARRIVED           ", 0, 5);
 	
