@@ -172,6 +172,7 @@ public class OdoCorrection {
 							}
 							RConsole.println("Original y: " +String.valueOf(pos.getY())); 
 							
+							RConsole.println("Axis: "+axis);
 							
 							//Changed calculation
 							y = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
@@ -183,7 +184,7 @@ public class OdoCorrection {
 							// x-= LS_Offset
 							
 							
-							RConsole.println("New y: "+String.valueOf(y));
+							RConsole.println("New y: "+String.valueOf(TmpY));
 							
 							odo.setCoordinates(0, TmpY, theta, new boolean[] {false, true, true});
 						}
