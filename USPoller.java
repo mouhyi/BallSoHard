@@ -11,7 +11,7 @@ import lejos.util.TimerListener;
 
 public class USPoller implements TimerListener{
 
-	private final int TOLERANCE = 30;
+	private final int TOLERANCE = 45;
 	private final int REFRESH = 50;
 	private int[] usDistances = new int[5];
 	private UltrasonicSensor us;
@@ -94,7 +94,7 @@ public class USPoller implements TimerListener{
 	 * Sets a mode for determining whether or an obstacle has been detected
 	 * @author Ryan
 	 */
-	public synchronized boolean obstacleDetected(){
+	public static synchronized boolean obstacleDetected(){
 		if(left.obstacleDetected || right.obstacleDetected){
 			return true;
 		}
@@ -108,7 +108,7 @@ public class USPoller implements TimerListener{
 	 * Returns the minimum of both filtered ultrasonic sensor readings
 	 * @author Ryan
 	 */
-	public int getDistance(){
+	public static int getDistance(){
 		if(left.median < right.median){
 			return left.median;
 		}
