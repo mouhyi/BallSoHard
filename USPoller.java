@@ -95,16 +95,33 @@ public class USPoller implements TimerListener{
 	 * @author Ryan
 	 */
 	public synchronized boolean obstacleDetected(){
-		return obstacleDetected;
+		if(left.obstacleDetected || right.obstacleDetected){
+			return true;
+		}
+		else{
+			return false;
+		}
+		
 	}
 	
-	/*
-	 * Returns the filtered ultrasonic sensor reading
+	/**
+	 * Returns the minimum of both filtered ultrasonic sensor readings
 	 * @author Ryan
 	 */
 	public int getDistance(){
-		return median;
+		if(left.median < right.median){
+			return left.median;
+		}
+		else{
+			return right.median;
+		}
+		
 	}
+	
+	/**
+	 * Resets the obstacle to false
+	 * @author Ryan
+	 */
 	
 	public void resetObstacle(){
 		obstacleDetected = false;
