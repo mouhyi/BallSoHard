@@ -1,5 +1,6 @@
 import lejos.nxt.UltrasonicSensor;
 import lejos.util.Timer;
+import lejos.util.TimerListener;
 
 /**
  * Wrapper class for the ultrasonic sensors
@@ -8,15 +9,19 @@ import lejos.util.Timer;
  * @see Printer
  */
 
-public class USPoller implements Runnable {
+public class USPoller implements TimerListener{
 
 	private final int TOLERANCE = 30;
+	private final int REFRESH = 50;
 	private int[] usDistances = new int[5];
 	private UltrasonicSensor us;
 	private int median;
 	private boolean obstacleDetected;
 	private Object lock;
 	
+	public static USPoller left;
+	public static USPoller right;
+
 	/**
 	 * Constructor
 	 * 
@@ -24,14 +29,28 @@ public class USPoller implements Runnable {
 	 */
 	public USPoller (UltrasonicSensor us) {
 		this.us = us;
+		Timer timer = new Timer(REFRESH, this);
+		timer.start();
 	}
+	
+	/**
+	 * This method initializes the USPollers and starts collecting US sensor readings
+	 * @param LeftUS, RightUS
+	 * @author Ryan
+	 */
+	
+	public static void startUS(UltrasonicSensor usLeft, UltrasonicSensor usRight){
+		left = new USPoller(usLeft);
+		right = new USPoller(usRight);
+	}
+	
 	
 	/**
      * This method implements run method of the Runnable interface.
      *
      * @author Mouhyi, Ryan
      */
-	public void run() {
+	public void timedOut() {
 	
 		int i;
 		int maxIndex = usDistances.length-1;
