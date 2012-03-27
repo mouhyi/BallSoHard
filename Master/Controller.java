@@ -14,9 +14,10 @@ public class Controller {
 
 	public static void main(String[] args) {
 
-		RConsole.openUSB(30000);
+		RConsole.openBluetooth((30000));
 
 		Button.waitForPress();
+		
 
 		/*
 		 * BluetoothConnection conn = new BluetoothConnection(); Transmission t
@@ -44,7 +45,7 @@ public class Controller {
 		ObstacleDetection us = new ObstacleDetection(new USPoller(
 				SystemConstants.USL), new USPoller(SystemConstants.USR));
 		
-		Navigation nav = new Navigation(odo, robot, us);
+		Navigation nav = new Navigation(odo, robot, us, snapper);
 
 		
 
@@ -61,8 +62,14 @@ public class Controller {
 		 * SystemConstants.TILE); nav.travelTo(0, 0);
 		 */
 
-		nav.GoTo(2 * SystemConstants.TILE, 2 * SystemConstants.TILE);
-
+		nav.GoTo(2 * SystemConstants.TILE, 1 * SystemConstants.TILE);
+		
+		//nav.travelTo(SystemConstants.TILE, 0);
+		//nav.turnTo(90);
+		
+		
+		RConsole.println("END Conroller ");
+		
 		Button.waitForPress();
 
 	}

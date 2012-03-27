@@ -249,11 +249,11 @@ public class OdoCorrection {
 	 * 
 	 * @author Mouhyi
 	 */
-	public void setEnabled(boolean enabled) {
+	public synchronized void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 
-	public boolean isEnabled() {
+	public synchronized boolean isEnabled() {
 		return enabled;
 	}
 }
