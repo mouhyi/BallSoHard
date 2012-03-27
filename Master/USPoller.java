@@ -1,3 +1,5 @@
+/* Does not work*/
+
 package Master;
 
 import lejos.nxt.UltrasonicSensor;
