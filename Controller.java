@@ -42,16 +42,22 @@ public class Controller {
 		
 		Printer lcd = new Printer(odo);
 		
-	
-		nav.navCorrect();
+		
 		
 		// Drive Square
-		//nav.travelTo(2*SystemConstants.TILE, 0);
-		/*nav.travelTo(2*SystemConstants.TILE, 3*SystemConstants.TILE);
+		/*nav.travelTo(SystemConstants.TILE, 0);
+		nav.travelTo(2*SystemConstants.TILE, 0);
+		nav.travelTo(2*SystemConstants.TILE, SystemConstants.TILE);
+		nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
+		nav.travelTo(SystemConstants.TILE, 2*SystemConstants.TILE);
 		nav.travelTo(0, 2*SystemConstants.TILE);
+		nav.travelTo(0, SystemConstants.TILE);
 		nav.travelTo(0, 0);*/
 		
-		//nav.TravelToX(3*SystemConstants.TILE);
+		
+		
+		nav.GoTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
+		
 	
 		Button.waitForPress();
 
