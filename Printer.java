@@ -54,9 +54,9 @@ public class Printer implements TimerListener {
 		LCD.drawString("0:              ", 0, 2);
 		
 		// print coordinates
-		LCD.drawInt((int)(coords.getX() ), 2, 0);
-	    LCD.drawInt((int)(coords.getY()), 2, 1);
-	    LCD.drawInt((int)(coords.getTheta()), 2, 2);
+		LCD.drawString(""+coords.getX(), 2, 0);
+	    LCD.drawString(""+coords.getY(), 2, 1);
+	    LCD.drawString(""+coords.getTheta(), 2, 2);
 	}
 
 }
