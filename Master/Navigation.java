@@ -57,7 +57,8 @@ public class Navigation {
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
-		// RConsole.println("TravelTo: Turn ");
+		RConsole.println("TravelTo: Turn " + destAngle);
+		RConsole.println("cutTheta" + coords.getTheta());
 		turnTo(destAngle);
 
 		/*
@@ -135,7 +136,7 @@ public class Navigation {
 		double curX, curY;
 		boolean obstacle = false;
 		int xDiff, yDiff;
-
+		
 		while (true) {
 
 			do {
@@ -143,11 +144,14 @@ public class Navigation {
 				curX = coords.getX();
 				curY = coords.getY();
 				xDiff = (int) Math.round((x - curX) / SystemConstants.TILE) - 1;
-				if(xDiff==-1) break;
+				if (xDiff == -1)
+					break;
 
 				RConsole.println("xdiff" + xDiff);
 
-				obstacle = !travelTo(x - xDiff * SystemConstants.TILE, curY);
+				obstacle = !travelTo(x - xDiff * SystemConstants.TILE, Math
+						.round(curY / SystemConstants.TILE)
+						* SystemConstants.TILE);
 
 				coords = odo.getCoordinates();
 				curX = coords.getX();
@@ -161,8 +165,9 @@ public class Navigation {
 			do {
 				obstacle = false;
 				yDiff = (int) Math.round((y - curY) / SystemConstants.TILE) - 1;
-				if(yDiff==-1) break;
-				
+				if (yDiff == -1)
+					break;
+
 				RConsole.println("ydiff" + yDiff);
 
 				obstacle = !travelTo(curX, y - yDiff * SystemConstants.TILE);

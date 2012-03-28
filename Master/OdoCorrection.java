@@ -147,6 +147,9 @@ public class OdoCorrection {
 							// x-= LS_Offset
 							
 							RConsole.println("New x: " + String.valueOf(TmpX));
+							
+							Sound.setVolume(100);
+							Sound.beep();
 									
 							odo.setCoordinates(TmpX, 0, theta, new boolean[] {true, false, true});	
 						}
