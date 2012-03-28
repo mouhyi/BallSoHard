@@ -34,13 +34,13 @@ public class Offense implements Runnable {
 		holdMotor.rotate(-35);
 
 		// pull down the arm
-		loadMotor.rotate(300);
+		loadMotor.rotate(-250);
 
 		// lock
 		holdMotor.rotate(35);
 
 		// release the string
-		loadMotor.rotate(-300);
+		loadMotor.rotate(250);
 
 		try {
 			Thread.sleep(1000);
