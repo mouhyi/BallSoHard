@@ -59,7 +59,7 @@ public class SystemConstants {
 	 */
 	
 	public static final double FORWARD_SPEED = 10; 	// 150		// cm/s
-	public static final double ROTATION_SPEED = 8.0;
+	public static final double ROTATION_SPEED = 5.0;  //8
 	
 	// 1 foot= 30.48cm	  	
  	public static double TILE = 30.48;

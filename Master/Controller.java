@@ -37,7 +37,7 @@ public class Controller {
 				SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
 		OdoCorrection snapper = new OdoCorrection(odo, robot);
-		snapper.setEnabled(true);
+		snapper.setEnabled(false);
 
 		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
 		
@@ -52,17 +52,20 @@ public class Controller {
 		Printer lcd = new Printer(odo);
 
 		// Drive Square
-		/*
-		 * nav.travelTo(SystemConstants.TILE, 0);
-		 * nav.travelTo(2*SystemConstants.TILE, 0);
-		 * nav.travelTo(2*SystemConstants.TILE, SystemConstants.TILE);
-		 * nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
-		 * nav.travelTo(SystemConstants.TILE, 2*SystemConstants.TILE);
-		 * nav.travelTo(0, 2*SystemConstants.TILE); nav.travelTo(0,
-		 * SystemConstants.TILE); nav.travelTo(0, 0);
-		 */
+		
+		 nav.travelTo(SystemConstants.TILE, 0);
+		 
+		 nav.travelTo(2*SystemConstants.TILE, 0);
+		 
+		 nav.travelTo(2*SystemConstants.TILE, SystemConstants.TILE);
+		 nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
+		 nav.travelTo(SystemConstants.TILE, 2*SystemConstants.TILE);
+		 nav.travelTo(0, 2*SystemConstants.TILE); nav.travelTo(0,SystemConstants.TILE);
+		 nav.travelTo(0, 0);
+		 
 
-		nav.GoTo(2 * SystemConstants.TILE, 1 * SystemConstants.TILE);
+		//nav.GoTo(SystemConstants.TILE, 1 * SystemConstants.TILE);
+		//nav.travelTo(2* SystemConstants.TILE, 0);
 		
 		//nav.travelTo(SystemConstants.TILE, 0);
 		//nav.turnTo(90);

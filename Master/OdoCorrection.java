@@ -82,6 +82,12 @@ public class OdoCorrection {
 				// second line
 				else {
 					
+					
+					// IMPOTT
+					robot.stop();
+					RConsole.println("ODO FUCKING STOP ");
+					
+					
 					/*
 					 * Refresh direction before correction
 					 */
