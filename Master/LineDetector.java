@@ -15,10 +15,9 @@ import lejos.util.TimerListener;
  * @author Mouhyi, Ryan
  */
 
-public class LineDetector implements TimerListener {
+public class LineDetector extends Thread {
 
-	private final int SENSOR_THRESHOLD = 15;
-	private final int DETECTION_THRESHOLD = 30;
+	private final int DETECTION_THRESHOLD = 40;
 	private int[] lightValue = new int[6];
 	private double robotSpeed;
 	private boolean lineDetected = false;
@@ -26,8 +25,6 @@ public class LineDetector implements TimerListener {
 	private boolean isleft;
 
 	private OdoCorrection snapper;
-
-	Timer timer;
 	
 	// instances of this class
 	public static LineDetector left;
@@ -46,12 +43,7 @@ public class LineDetector implements TimerListener {
 		this.ls = ls;
 		this.isleft = isleft;
 		this.snapper = snapper;
-		this.robotSpeed = robotSpeed;
-		
-		int refreshRate = 166/(int)this.robotSpeed;				// 166/this.robotSpeed
-		
-		Timer timer = new Timer(refreshRate, this); 			
-		timer.start();
+		this.start();
 	}
 	
 	public static void init(OdoCorrection snapper, double robotSpeed){
@@ -63,63 +55,58 @@ public class LineDetector implements TimerListener {
 	 * This method implements the run method of the Runnable interface. It calls
 	 * notify when it detects a line cross
 	 * 
-	 * @author Mouhyi, Ryan, Josh
+	 * @author Mouhyi, Ryan
 	 */
-	public void timedOut() {
-		
-		int i;
-		int maxIndex = lightValue.length-1;
+	public void run() {
+		while (true) {
+			int i;
+			int maxIndex = lightValue.length-1;
+			int diffAB;
+			int diffCD;
+			int totalDiff;
 
-		//puts light sensor readings in an array and shifts them for every ping
-		for(i=0; i<maxIndex; i++){
-			lightValue[i]=lightValue[i+1];
-		}
-		
-		
-		
-		//Filters out values if the difference between subsequent values is too small
-		if(!(Math.abs(lightValue[maxIndex]-ls.getNormalizedLightValue()) < SENSOR_THRESHOLD)){
+			//puts light sensor readings in an array and shifts them for every ping
+			for(i=0; i<maxIndex; i++){
+				lightValue[i]=lightValue[i+1];
+			}
+					
 			lightValue[maxIndex]=ls.getNormalizedLightValue();
-		}
-		
-		//Detects a line if there is first a positive difference in light, then negative
-		if(lightValue[0]-lightValue[1]>= DETECTION_THRESHOLD &&
-		  (lightValue[1]-lightValue[2]<=-DETECTION_THRESHOLD || 
-		   lightValue[2]-lightValue[3]<=-DETECTION_THRESHOLD ||
-		   lightValue[3]-lightValue[4]<=-DETECTION_THRESHOLD ||
-		   lightValue[4]-lightValue[5]<=-DETECTION_THRESHOLD)){
 			
-				
-				if(this == left){
-					RConsole.println("Left line detected");
-				}
-				else if(this == right){
-					RConsole.println("Right line detected");
-				}
+			/*
+			if(this==left){
+				RConsole.println(String.valueOf(lightValue[maxIndex]));
+			}
+			*/
 
+			/*
+			 * Calculates second derivative
+			 * @author Ryan
+			 */
 			
-				// Clear out the line condition
-				for(i=0; i<maxIndex; i++){
-					lightValue[i]=lightValue[i+1];
-				}
+			diffAB = lightValue[0]-lightValue[1];
+			diffCD = lightValue[2]-lightValue[3];
+			totalDiff = diffAB-diffCD;
+			
+			if(totalDiff >= DETECTION_THRESHOLD){
 				
-				lineDetected = true;
-				notifyListener();
+					/*if(this == left){
+						RConsole.println("Left line detected");
+					}
+					else if(this == right){
+						RConsole.println("Right line detected");
+					}*/
+
 				
-				/*
-				 * Move the delay here to accommodate localization routine
-				 */
-				
-				/*
-				// Delay to reduce risk of counting line again
-				try
-				{
-					Thread.sleep((int)(500/this.robotSpeed));
-				}
-				catch (InterruptedException e){}
-				*/
+					// Clear out the line condition
+					for(i=0; i<maxIndex; i++){
+						lightValue[i]=lightValue[i+1];
+					}
+					
+					lineDetected = true;
+					notifyListener();
+			}
+			try { Thread.sleep(10); } catch(Exception e){}
 		}
-		
 	}
 
 	/**
