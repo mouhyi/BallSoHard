@@ -57,8 +57,19 @@ public class Navigation {
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
-		// RConsole.println("TravelTo: Turn ");
-		turnTo(destAngle);
+
+		/*
+		 * Doesn't turn if error is too small
+		 * @author Ryan
+		 */
+		
+		double difference = Math.abs(coords.getTheta()-destAngle);
+		
+		if(difference > 3){
+			turnTo(destAngle);
+			RConsole.println("TravelTo: Turn completed ");
+		}
+		RConsole.println("TravelTo: Already facing destination");
 
 		/*
 		 * if ( us.getDistance() < ObstacleDist ){ RConsole.println("Obstacle");
@@ -80,7 +91,7 @@ public class Navigation {
 		turnTo(odo.getDirection() * 90); // / added to align
 
 		// RConsole.println("TravelTo: advance");
-		RConsole.println("TravleTO ARRIVEDto: x=" + x + ",  y=" + y);
+		RConsole.println("TravelTo ARRIVEDto: x=" + x + ",  y=" + y);
 
 		return true;
 
