@@ -1,3 +1,5 @@
+package Master;
+
 import lejos.nxt.*;
 import lejos.nxt.comm.RConsole;
 import lejos.util.*;
@@ -7,7 +9,7 @@ public class LightTimer implements TimerListener
 	
 	private final int SENSOR_THRESHOLD = 40;
 	private final int DETECTION_THRESHOLD = 40;
-	private int[] lightValue = new int[7];
+	private int[] lightValue = new int[6];
 	private LightSensor sensor; 
 	private Timer lightTimer;
 	private double robotSpeed;
@@ -15,11 +17,10 @@ public class LightTimer implements TimerListener
 	private boolean lineDetected = false;
 	
 	//Initializes timer and starts reading light values
-	public LightTimer(LightSensor ls, double robotSpeed)		// robot speed in cm/s
+	public LightTimer(LightSensor ls)		// robot speed in cm/s
 	{
 		this.sensor = ls;
-		this.robotSpeed = robotSpeed;
-		lightTimer = new Timer((int)(125/this.robotSpeed), this); // 166/this.robotSpeed
+		lightTimer = new Timer(10, this); // 166/this.robotSpeed
 		lightTimer.start();
 	}
 		
@@ -33,38 +34,45 @@ public class LightTimer implements TimerListener
 			lightValue[i]=lightValue[i+1];
 		}
 		
-		//Filters out values if the difference between subsequent values is too small
-		if(!(Math.abs(lightValue[maxIndex]-sensor.getNormalizedLightValue()) < SENSOR_THRESHOLD)){
 			lightValue[maxIndex]=sensor.getNormalizedLightValue();
-		}
-		
-		//Detects a line if there is first a positive difference in light, then negative
-		if(lightValue[0] == lightValue[1] &&
-				lightValue[1] == lightValue[2] &&
-				lightValue[2]-lightValue[3]>= DETECTION_THRESHOLD && 
-				(lightValue[3]-lightValue[4]<=-DETECTION_THRESHOLD ||
-				lightValue[4]-lightValue[5]<=-DETECTION_THRESHOLD ||
-				lightValue[5]-lightValue[6]<=-DETECTION_THRESHOLD) &&
-				lineDetected==false)
-		{
-			
-			// Delay to reduce risk of counting line again
-			try
-			{
-				Thread.sleep((int)(500/this.robotSpeed));
+			RConsole.println("light = "+ lightValue[maxIndex]);
+			/*
+			if(this==left){
+				RConsole.println(String.valueOf(lightValue[maxIndex]));
 			}
-			catch (InterruptedException e)
-			{
+			*/
+
+			/*
+			 * Calculates second derivative
+			 * @author Ryan
+			 */
 			
+			int diffAB = lightValue[0]-lightValue[1];
+			int diffCD = lightValue[2]-lightValue[3];
+			int totalDiff = diffAB-diffCD;
+			RConsole.println("totalDiff = "+ totalDiff);
+			
+			if(totalDiff >= DETECTION_THRESHOLD && totalDiff <= 100){
+				
+					/*if(this == left){
+						RConsole.println("Left line detected");
+					}
+					else if(this == right){
+						RConsole.println("Right line detected");
+					}*/
+
+				
+					// Clear out the line condition
+					for(i=0; i<maxIndex; i++){
+						lightValue[i]=lightValue[i+1];
+					}
+					
+					lineDetected = true;
 			}
-				lineDetected=true;
-				// clear array
-				for(i=0; i<3; i++){
-					lightValue[i]=lightValue[i+1];
-				}
+			//try { Thread.sleep(10); } catch(Exception e){}
+			
 				
 				
-		}
 	}
 
 	//Returns true if a line is detected
