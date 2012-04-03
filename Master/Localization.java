@@ -14,6 +14,9 @@ import lejos.nxt.comm.RConsole;
 
 public class Localization {
 
+	// Constants
+	private final int ERROR_THRESHOLD = 100;
+
 	// Fields
 	private Odometer odo;
 	private Robot robot;
@@ -38,13 +41,37 @@ public class Localization {
 	 * 
 	 * @author Mouhyi, JDAlfaro
 	 */
-	public void doLocalization() {
-//		this.doUSLocalization();
-		
+	public void doLocalization(int corner) {
+
+		// Perform the localization
+		robot.setAcceleration(1500);
+		this.doUSLocalization();
 		this.doLightLocalization3();
 		robot.rotateAxis(90, 5);
 		this.doLightLocalization3();
 		robot.rotateAxis(-90, 5);
+		robot.setAcceleration(6000);
+
+		// Adjust Odometer depending on starting location
+		switch (corner) {
+		case 1:
+			odo.setCoordinates(0, 0, 0, new boolean[] { true, true, true });
+			break;
+		case 2:
+			odo.setCoordinates(304.8, 0, 90, new boolean[] { true, true, true });
+			break;
+		case 3:
+			odo.setCoordinates(304.8, 304.8, 180, new boolean[] { true, true,
+					true });
+			break;
+		case 4:
+			odo.setCoordinates(0, 304.8, 270,
+					new boolean[] { true, true, true });
+			break;
+		default:
+			break;
+		}
+
 	}
 
 	/**
@@ -52,7 +79,7 @@ public class Localization {
 	 * 
 	 * @author Mouhyi, JDAlfaro
 	 */
-	public void doUSLocalization() // Falling and Rising Edge Method
+	private void doUSLocalization() // Falling and Rising Edge Method
 	{
 		robot.rotate(-50); // rotate clockwise
 		robot.rotate(-50);
@@ -80,6 +107,7 @@ public class Localization {
 				second = true;
 				Wall = 0;
 				angleA = odo.getCoordinates().getTheta(); // latch angle
+				// LCD.drawString("anlgeA " + angleA + " ", 0, 3);
 			}
 		}
 
@@ -98,19 +126,23 @@ public class Localization {
 				second = false;
 				noWall = 0;
 				angleB = odo.getCoordinates().getTheta(); // latch angle
+				// LCD.drawString("angleB " + angleB + " ", 0, 4);
 			}
 
 		}
 		robot.stop();
+		if (Odometer.adjustAngle(angleA - angleB) < ERROR_THRESHOLD) {
+			this.doUSLocalization();
+			return;
+		}
 
 		// Computation of new angle
-		double theta = Odometer.adjustAngle(45 - Odometer.adjustAngle(angleA
+		double theta = Odometer.adjustAngle(30 - Odometer.adjustAngle(angleA
 				- angleB) / 2);
-		LCD.drawString("anlgeA " + angleA + " ", 0, 3);
-		LCD.drawString("angleB " + angleB + " ", 0, 4);
+
 		LCD.drawString("newtheta " + theta + " ", 0, 5);
 
-		odo.setCoordinates(0, 0, theta, new boolean[] { false, false, true });
+		robot.rotateAxis(360 - theta, 5);
 	}
 
 	/**
@@ -159,7 +191,6 @@ public class Localization {
 				case 1:
 					angleL[gridLineCountL - 1] = odo.getCoordinates()
 							.getTheta();
-					RConsole.println("angleL[0]  " + angleL[0]);
 					break;
 				case 2:
 					angleL[gridLineCountL - 1] = odo.getCoordinates()
@@ -169,7 +200,6 @@ public class Localization {
 					if (angleL[gridLineCountL - 1] < angleL[gridLineCountL - 2]) {
 						angleL[gridLineCountL - 1] += 360;
 					}
-					RConsole.println("angleL[1]  " + angleL[1]);
 					break;
 				case 3:
 					angleL[gridLineCountL - 1] = odo.getCoordinates()
@@ -179,7 +209,6 @@ public class Localization {
 					if (angleL[gridLineCountL - 1] < angleL[gridLineCountL - 2]) {
 						angleL[gridLineCountL - 1] += 360;
 					}
-					RConsole.println("angleL[2]  " + angleL[2]);
 					break;
 				case 4:
 					angleL[gridLineCountL - 1] = odo.getCoordinates()
@@ -189,12 +218,9 @@ public class Localization {
 					if (angleL[gridLineCountL - 1] < angleL[gridLineCountL - 2]) {
 						angleL[gridLineCountL - 1] += 360;
 					}
-					RConsole.println("angleL[3]  " + angleL[3]);
 					leftDone = false;
 					break;
 				default:
-					// error handling
-					// this.doLocalization();
 					break;
 				}
 
@@ -208,7 +234,6 @@ public class Localization {
 				case 1:
 					angleR[gridLineCountR - 1] = odo.getCoordinates()
 							.getTheta();
-					// RConsole.println("angleR[0]  " + angleR[0]);
 					break;
 				case 2:
 					angleR[gridLineCountR - 1] = odo.getCoordinates()
@@ -218,7 +243,6 @@ public class Localization {
 					if (angleR[gridLineCountR - 1] < angleR[gridLineCountR - 2]) {
 						angleR[gridLineCountR - 1] += 360;
 					}
-					// RConsole.println("angleR[1]  " + angleR[1]);
 					break;
 				case 3:
 					angleR[gridLineCountR - 1] = odo.getCoordinates()
@@ -228,7 +252,6 @@ public class Localization {
 					if (angleR[gridLineCountR - 1] < angleR[gridLineCountR - 2]) {
 						angleR[gridLineCountR - 1] += 360;
 					}
-					// RConsole.println("angleR[2]  " + angleR[2]);
 					break;
 				case 4:
 					angleR[gridLineCountR - 1] = odo.getCoordinates()
@@ -238,22 +261,15 @@ public class Localization {
 					if (angleR[gridLineCountR - 1] < angleR[gridLineCountR - 2]) {
 						angleR[gridLineCountR - 1] += 360;
 					}
-					// RConsole.println("angleR[3]  " + angleR[3]);
 					rightDone = false;
 					break;
 				default:
-					// error handling
-					// this.doLocalization();
 					break;
 				}
 
 				linePassedR = false;
 				rightLight.resetLine();
 			}
-
-			// RConsole.println("" + leftLight.getLightValue());
-			RConsole.println(""
-					+ leftLight.getSensor().getNormalizedLightValue());
 		}
 		robot.stop(); // stop doing moving and leave loop to perform
 						// calculations
@@ -278,17 +294,8 @@ public class Localization {
 		double m = 90 / ((angleR[3] + angleL[1]) / 2 - (angleR[2] + angleL[0]) / 2);
 		double b = 180 - (m) * (angleR[2] + angleL[0]) / 2;
 
-		RConsole.println("m  " + m);
-		RConsole.println("x  " + odo.getCoordinates().getTheta());
-		RConsole.println("b  " + b);
-
 		thetaOffset = Odometer.adjustAngle(m * odo.getCoordinates().getTheta()
 				+ b);
-		/*
-		 * thetaOffset = (Math.abs(angleL[3] - angleL[0]) - 90 -
-		 * Math.abs(angleL[2] - angleL[0])/2 + Math.abs(angleR[3] - angleR[0]) -
-		 * 90 - Math.abs(angleR[2] - angleR[0])/2)/2;
-		 */
 
 		odo.setCoordinates(xOffset, yOffset, thetaOffset, new boolean[] { true,
 				true, true });
@@ -352,7 +359,7 @@ public class Localization {
 	 * @author Anthony, Josh
 	 */
 
-	public void doLightLocalization3() {
+	private void doLightLocalization3() {
 
 		// Initialize two booleans that represent whether or not the right
 		// and left sensors have seen lines
@@ -364,31 +371,37 @@ public class Localization {
 
 		// Advance the robot until one light sensor sees a line. Stop the
 		// correct wheel.
+		robot.advance(5);
+		robot.advance(5);
 		while (!rightSeen && !leftSeen) {
 
-			robot.advance(5);
+			// robot.advance(5);
 			if (leftLight.lineDetected()) {
 				leftSeen = true;
 				Sound.setVolume(70);
 				Sound.beep();
 				robot.stopLeft();
-				LCD.drawString("leftDetect",0,6);
 			} else if (rightLight.lineDetected()) {
 				rightSeen = true;
 				Sound.setVolume(70);
 				Sound.beep();
 				robot.stopRight();
-				LCD.drawString("rightDetect",0,6);
 			}
 		}
 
 		// Keep making the wheel that hasn't seen a line go forward until it
 		// sees a line
+		double currentAngle = odo.getCoordinates().getTheta();
+		RConsole.print("" + currentAngle);
 		if (rightSeen) {
-
+			robot.advanceLeft(75);
+			robot.advanceLeft(75);
 			while (!leftSeen) {
-				robot.advanceLeft(25);
-
+				/*
+				 * if(currentAngle - odo.getCoordinates().getTheta() > 30) {
+				 * robot.advanceLeft(-25); } else { robot.advanceLeft(25); }
+				 */
+				// robot.advanceLeft(25);
 				if (leftLight.lineDetected()) {
 					leftSeen = true;
 					Sound.setVolume(70);
@@ -396,11 +409,15 @@ public class Localization {
 					robot.stopLeft();
 				}
 			}
-		}
-		if (leftSeen) {
-
+		} else if (leftSeen) {
+			robot.advanceRight(75);
+			robot.advanceRight(75);
 			while (!rightSeen) {
-				robot.advanceRight(25);
+				/*
+				 * if(currentAngle - odo.getCoordinates().getTheta() < -30) {
+				 * robot.advanceRight(-25); } else { robot.advanceRight(25); }
+				 */
+				// robot.advanceRight(25);
 
 				if (rightLight.lineDetected()) {
 					rightSeen = true;
@@ -410,12 +427,9 @@ public class Localization {
 				}
 			}
 		}
-		
-		robot.goForward(-1.5, 5);
+
+		robot.goForward(-1.8, 5);
 		leftLight.stop();
 		rightLight.stop();
-		
-		LCD.drawString("done local",0,7);
-		
 	}
 }
