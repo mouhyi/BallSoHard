@@ -20,7 +20,7 @@ public class LightTimer implements TimerListener
 	public LightTimer(LightSensor ls)		// robot speed in cm/s
 	{
 		this.sensor = ls;
-		lightTimer = new Timer(10, this); // 166/this.robotSpeed
+		lightTimer = new Timer(25, this); // 166/this.robotSpeed
 		lightTimer.start();
 	}
 		
