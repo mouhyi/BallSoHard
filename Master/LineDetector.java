@@ -19,7 +19,6 @@ public class LineDetector extends Thread {
 
 	private final int DETECTION_THRESHOLD = 40;
 	private int[] lightValue = new int[6];
-	private double robotSpeed;
 	private boolean lineDetected = false;
 	LightSensor ls;
 	private boolean isleft;
@@ -105,7 +104,7 @@ public class LineDetector extends Thread {
 					lineDetected = true;
 					notifyListener();
 			}
-			try { Thread.sleep(10); } catch(Exception e){}
+			try { Thread.sleep(5); } catch(Exception e){}
 		}
 	}
 

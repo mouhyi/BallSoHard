@@ -17,7 +17,7 @@ public class Navigation {
 	OdoCorrection snapper;
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
-	private static final double DISTANCE_TOLERANCE = 1; // in cm
+	private static final double DISTANCE_TOLERANCE = 3; // in cm
 
 	/** minimum distance necessary for the robot to move forward */
 	public static final int ObstacleDist = 50;
@@ -48,8 +48,6 @@ public class Navigation {
 		Coordinates coords;
 		double destAngle;
 
-		robot.stop();
-
 		/*
 		 * try{ Thread.sleep(1000); }catch(Exception e){;}
 		 */
@@ -57,32 +55,56 @@ public class Navigation {
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
-
+		
 		/*
 		 * Doesn't turn if error is too small
 		 * @author Ryan
 		 */
-		
 		double difference = Math.abs(coords.getTheta()-destAngle);
 		
-		if(difference > 3){
+		if(difference > 2){
+			snapper.setEnabled(false);
 			turnTo(destAngle);
-			RConsole.println("TravelTo: Turn completed ");
+	//		RConsole.println("TravelTo: Turn completed ");
+			snapper.setEnabled(true);
 		}
-		RConsole.println("TravelTo: Already facing destination");
+		else{
+	//		RConsole.println("TravelTo: Already facing destination");
+		}
 
+		
 		/*
-		 * if ( us.getDistance() < ObstacleDist ){ RConsole.println("Obstacle");
-		 * return false; }
+		 * Uncommented this to work on obstacle avoidance
+		 * @author Ryan
 		 */
-
-		// RConsole.println("TravelTo: advance");
+		
+		if ( us.getDistance() < ObstacleDist ){ 
+			RConsole.println("Obstacle");
+			return false; 
+		}
+		
+	//	RConsole.println("TravelTo: Advance");
 
 		while (true) {
 			coords = odo.getCoordinates();
-			if (Math.abs(x - coords.getX()) < DISTANCE_TOLERANCE
-					&& Math.abs(y - coords.getY()) < DISTANCE_TOLERANCE) {
-				break;
+			
+			/*
+			 * Added a condition to only check one direction to prevent the robot from
+			 * continuing to move forward even after it has reached its destination
+			 * @author Ryan
+			 */
+			
+			//Moving horizontally
+			if(odo.getDirection() % 2 == 0){
+				if (Math.abs(x - coords.getX()) < DISTANCE_TOLERANCE){
+					break;
+				}
+			}
+			//Moving vertically
+			else{
+				if(Math.abs(y - coords.getY()) < DISTANCE_TOLERANCE) {
+					break;
+				}
 			}
 			robot.advance(SystemConstants.FORWARD_SPEED);
 		}
@@ -91,7 +113,7 @@ public class Navigation {
 		turnTo(odo.getDirection() * 90); // / added to align
 
 		// RConsole.println("TravelTo: advance");
-		RConsole.println("TravelTo ARRIVEDto: x=" + x + ",  y=" + y);
+	//	RConsole.println("TravelTo ARRIVEDto: x=" + x + ",  y=" + y);
 
 		return true;
 
@@ -106,7 +128,7 @@ public class Navigation {
 		double err;
 		destAngle = Odometer.adjustAngle(destAngle);
 
-		robot.stop();
+//		robot.stop();
 
 		// save snapper state and disable
 		boolean tmp = snapper.isEnabled();
@@ -147,51 +169,88 @@ public class Navigation {
 		boolean obstacle = false;
 		int xDiff, yDiff;
 
+	//	RConsole.println("Going to");
 		while (true) {
 
 			do {
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
-				xDiff = (int) Math.round((x - curX) / SystemConstants.TILE) - 1;
+				
+				/* Number of tiles to move
+				 * Added absolute value in case destination < current location
+				 * @author Ryan
+				 */
+				xDiff = (int) Math.round(Math.abs(x - curX) / SystemConstants.TILE) - 1;
 				if(xDiff==-1) break;
 
 				RConsole.println("xdiff" + xDiff);
 
-				obstacle = !travelTo(x - xDiff * SystemConstants.TILE, curY);
+				/*
+				 * Added case for when the destination is less than the current location
+				 * @author Ryan
+				 */
+				if(x > curX){
+					obstacle = !travelTo(x - xDiff * SystemConstants.TILE, curY);
+				}
+				else{
+					obstacle = !travelTo(x + xDiff * SystemConstants.TILE, curY);
+				}
+				RConsole.println("Traveled one tile horizontally");
 
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
-
-				// xDiff--;
+				
 			} while (Math.abs(curX - x) > DISTANCE_TOLERANCE && !obstacle);
-
-			RConsole.println("X Travel done ");
+			
+			/*
+			 * If an obstacle is detected, call avoidObstacle
+			 */
+			if(obstacle){
+				avoidObstacle(x, y);
+			}
 
 			do {
 				obstacle = false;
-				yDiff = (int) Math.round((y - curY) / SystemConstants.TILE) - 1;
+				
+				/*
+				 * Added absolute value
+				 * @author Ryan
+				 */				
+				yDiff = (int) Math.round(Math.abs(y - curY) / SystemConstants.TILE) - 1;
 				if(yDiff==-1) break;
 				
 				RConsole.println("ydiff" + yDiff);
 
-				obstacle = !travelTo(curX, y - yDiff * SystemConstants.TILE);
-
+				/*
+				 * Added conditions
+				 * @author Ryan
+				 */
+				if(y > curY){
+					obstacle = !travelTo(curX, y - yDiff * SystemConstants.TILE);
+				}
+				else{
+					obstacle = !travelTo(curX, y + yDiff * SystemConstants.TILE);
+				}
+				
 				// update position
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
 
-				// yDiff--;
 			} while (Math.abs(curY - y) > DISTANCE_TOLERANCE && !obstacle);
-
-			RConsole.println("Y Travel done ");
+			
+			if(obstacle){
+				avoidObstacle(x, y);
+			}
 
 			// if(obstacle ) call obstacle avoidance
 			// else if destination reached break
 			// else, i.e, obstacle in destination: return -1;
+			robot.stop();
 			break;
+			
 
 		}
 
@@ -281,7 +340,13 @@ public class Navigation {
 	 * 
 	 * @author mouhyi
 	 */
-	public void avoidObstacle() {
+	
+	/*
+	 * Added parameters x and y to recursively call the GoTo method after
+	 * avoiding obstacles until it has reached its destination
+	 * @author Ryan
+	 */
+	public void avoidObstacle(double x, double y) {
 		int dir = odo.getDirection();
 		boolean rightFree = true;
 		boolean leftFree = true;
@@ -304,6 +369,8 @@ public class Navigation {
 				navCorrect();
 			}
 		}
+		
+		this.GoTo(x, y);
 	}
 
 	/**

@@ -16,12 +16,11 @@ import lejos.util.TimerListener;
  * 
  */
 
-public class Odometer implements TimerListener {
+public class Odometer extends Thread {
 
-	private Timer timer;
 	private Robot robot;
 	private Coordinates coords;
-	
+
 	// variable to keep track of the robot's total displacement
 	private double displacement;
 	// variable to keep track of the robot's total heading: continuous: not
@@ -30,7 +29,6 @@ public class Odometer implements TimerListener {
 
 	// odometer update period, in ms
 	private static final int ODOMETER_PERIOD = 25;
-	
 
 	/**
 	 * Constructor
@@ -38,12 +36,18 @@ public class Odometer implements TimerListener {
 	 * @author Mouhyi
 	 */
 	public Odometer(Robot robot) {
-		
+
 		this.robot = robot;
 		coords = new Coordinates();
 		// start timer
-		Timer timer = new Timer(ODOMETER_PERIOD, this);
-		timer.start();
+
+		/*
+		 * Changed timer to thread
+		 * 
+		 * @author Ryan
+		 */
+		// Timer timer = new Timer(ODOMETER_PERIOD, this);
+		this.start();
 	}
 
 	/**
@@ -51,117 +55,108 @@ public class Odometer implements TimerListener {
 	 * 
 	 * @author Mouhyi
 	 */
-	public void timedOut() {
+	public void run() {
 		double dHeading, dDisplacement;
 		double x, y, theta;
-
-		
 
 		// double dTheta2 = (dTheta < 3 || dTheta > 358) ? 0 :
 		// adjustAngle(dTheta); // /// CHANGE!
 
-		
+		while (true) {
 
-		synchronized (coords) {
-			// get cuurrent coords
-			x = coords.getX();
-			y = coords.getY();
-			theta = coords.getTheta();
-			
-			dHeading = robot.getHeading() - heading; // theta <-> heading , if not heading, manual correction doesn't work
-			
-			double dTheta = NegativeMap(dHeading);
-			//if(dTheta < 1 || dTheta > 359) dTheta =  0;
-			
-			LCD.drawString("dHead "+ dHeading +"          ", 0, 3);
-			LCD.drawString("dTheta "+ dTheta +"           ", 0, 4);
+			synchronized (coords) {
+				// get cuurrent coords
+				x = coords.getX();
+				y = coords.getY();
+				theta = coords.getTheta();
 
-			
-			dDisplacement = robot.getDisplacement() - displacement; // adjust??
+				dHeading = robot.getHeading() - heading; // theta <-> heading ,
+															// if not heading,
+															// manual correction
+															// doesn't work
 
-			// Formulas from Tutorial: problem angles sum & /2
-			x += dDisplacement
-					* Math.cos(convertToRadians(theta + dTheta / 2));
-			y += dDisplacement
-					* Math.sin(convertToRadians(theta + dTheta / 2));
-			theta += dTheta;	// not sure if this correction is correct
-			theta = adjustAngle(theta);
+				double dTheta = NegativeMap(dHeading);
+				// if(dTheta < 1 || dTheta > 359) dTheta = 0;
 
-			// update displacement
-			displacement += dDisplacement;
-			heading += dHeading;
+				LCD.drawString("dHead " + dHeading + "          ", 0, 3);
+				LCD.drawString("dTheta " + dTheta + "           ", 0, 4);
 
-			// update coordinates
-			coords.set(x, y, theta);
+				dDisplacement = robot.getDisplacement() - displacement; // adjust??
+
+				// Formulas from Tutorial: problem angles sum & /2
+				x += dDisplacement
+						* Math.cos(convertToRadians(theta + dTheta / 2));
+				y += dDisplacement
+						* Math.sin(convertToRadians(theta + dTheta / 2));
+				theta += dTheta; // not sure if this correction is correct
+				theta = adjustAngle(theta);
+
+				// update displacement
+				displacement += dDisplacement;
+				heading += dHeading;
+
+				// update coordinates
+				coords.set(x, y, theta);
+			}
+			try {
+				Thread.sleep(25);
+			} catch (Exception e) {
+			}
 		}
-
 	}
 
-	/**
-	 * method to stop the timerlistener
-	 * 
-	 */
-	public void stop() {
-		if (this.timer != null)
-			this.timer.stop();
-	}
-
-	/**
-	 * method to start the timerlistener
-	 * 
-	 */
-	public void start() {
-		if (this.timer != null)
-			this.timer.start();
-	}
 	/**
 	 * Set robot's coordinates to the given parameters (Demeter's rule)
+	 * 
 	 * @param x
 	 * @param y
 	 * @param theta
 	 * @author Mouhyi
 	 */
-	public void setCoordinates(double x, double y, double theta){
-		synchronized(coords){
+	public void setCoordinates(double x, double y, double theta) {
+		synchronized (coords) {
 			coords.set(x, y, theta);
 		}
 	}
-	
-	public void setCoordinates(double x, double y, double theta, boolean [] update){
-		synchronized(coords){
-			if(update[0]) coords.setX(x);
-			if(update[1]) coords.setY(y);
-			if(update[2]) coords.setTheta(theta);
+
+	public void setCoordinates(double x, double y, double theta,
+			boolean[] update) {
+		synchronized (coords) {
+			if (update[0])
+				coords.setX(x);
+			if (update[1])
+				coords.setY(y);
+			if (update[2])
+				coords.setTheta(theta);
 		}
 	}
-	
+
 	/**
 	 * @return a Coordinates object with the coordinates of the robot
 	 * @author Mouhyi
 	 */
-	public Coordinates getCoordinates(){
-		Coordinates coordsClone =  new Coordinates();
-		synchronized (coords) {		
+	public Coordinates getCoordinates() {
+		Coordinates coordsClone = new Coordinates();
+		synchronized (coords) {
 			coordsClone.copy(coords);
 		}
 		return coordsClone;
 	}
+
 	/**
 	 * Compute robot's direction
 	 * 
 	 * @return int direction: 0:E, 1:N, 2:W, 3:S
 	 * @author Mouhyi
 	 */
-	public int getDirection(){
+	public int getDirection() {
 		double theta;
-		synchronized(coords){
+		synchronized (coords) {
 			theta = coords.getTheta();
 		}
-		int direction = ( (int)(theta + 45) / 90) % 4;	// round then divide
-		return direction;	
+		int direction = ((int) (theta + 45) / 90) % 4; // round then divide
+		return direction;
 	}
-	
-	
 
 	public Robot getRobot() {
 		return robot;
@@ -179,7 +174,7 @@ public class Odometer implements TimerListener {
 	public static double convertToRadians(double angle) {
 		return (angle * Math.PI) / (180.0);
 	}
-	
+
 	/**
 	 * This method converts angles is degrees to radians
 	 * 
@@ -188,7 +183,7 @@ public class Odometer implements TimerListener {
 	 * @author Mouhyi
 	 */
 	public static double convertToDeg(double angle) {
-		return  angle*(180.0) /  Math.PI;
+		return angle * (180.0) / Math.PI;
 	}
 
 	/**
@@ -204,7 +199,7 @@ public class Odometer implements TimerListener {
 			angle = 360.0 + (angle % 360.0);
 		return angle % 360.0;
 	}
-	
+
 	/**
 	 * Map angle to [-180,180)
 	 * 
@@ -221,5 +216,4 @@ public class Odometer implements TimerListener {
 			return d - 360.0;
 	}
 
-	
 }

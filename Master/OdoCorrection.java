@@ -28,7 +28,7 @@ public class OdoCorrection {
 	private double tachoCount;
 
 	private long startTime;
-	private static int timedout = 5000;
+	private static int timedout = 2500;
 
 	public OdoCorrection(Odometer odo, Robot robot) {
 		this.odo = odo;
@@ -75,19 +75,19 @@ public class OdoCorrection {
 			}
 			// If it's a different line
 			else {
-				// new line	 //REMOVE!
+				
+				/*
+				 * Uncommented this statement to stop correction from occurring
+				 * if the line detection happens too far away from each other
+				 * Also reduced the timedout period to 2.5s
+				 * @author Ryan
+				 */
 				if (System.currentTimeMillis() - startTime > timedout) {
-					//reset(detector);
+					reset(detector);
+					return;
 				}
 				// second line
 				else {
-					
-					
-					// IMPOTT
-					robot.stop();
-					RConsole.println("ODO FUCKING STOP ");
-					
-					
 					/*
 					 * Refresh direction before correction
 					 */
@@ -101,7 +101,7 @@ public class OdoCorrection {
 					// compute distance traveled between line cross detections
 					double distTraveled = deltaTacho / 180.0
 											* Math.PI * SystemConstants.LEFT_RADIUS;
-					RConsole.println("Distance Traveled: "+String.valueOf(distTraveled));
+					//RConsole.println("Distance Traveled: "+String.valueOf(distTraveled));
 					
 					// id distance is too large
 					if(distTraveled > 10){
@@ -132,19 +132,19 @@ public class OdoCorrection {
 								axis = Math.round((x+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
 							}
 							
-							RConsole.println("Original theta: "+ String.valueOf(pos.getTheta()));
+							//RConsole.println("Original theta: "+ String.valueOf(pos.getTheta()));
 							
-							RConsole.println("Original x: "+String.valueOf(pos.getX()));
+							//RConsole.println("Original x: "+String.valueOf(pos.getX()));
 							
 							//Changed calculation
 							x = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
 							
-							RConsole.println("Axis: "+String.valueOf(axis));
+							//RConsole.println("Axis: "+String.valueOf(axis));
 							
 							
 							double TmpX = axis + ( distTraveled)/2 * Math.cos(theta)  + SystemConstants.LS_MIDDLE  ;
 							
-							RConsole.println("TmpX: "+String.valueOf(TmpX));
+							//RConsole.println("TmpX: "+String.valueOf(TmpX));
 							
 							/*	ORIGINAL
 							 * 	The first line correction always results in a negative x value
@@ -152,9 +152,9 @@ public class OdoCorrection {
 							//x = axis + ( distTraveled - SystemConstants.LS_MIDDLE )/2 * Math.cos(theta);
 							// x-= LS_Offset
 							
-							RConsole.println("New x: " + String.valueOf(TmpX));
+							//RConsole.println("New x: " + String.valueOf(TmpX));
 							
-							Sound.setVolume(100);
+							Sound.setVolume(50);
 							Sound.beep();
 									
 							odo.setCoordinates(TmpX, 0, theta, new boolean[] {true, false, true});	
@@ -179,9 +179,9 @@ public class OdoCorrection {
 							else{
 								axis = Math.round((y+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
 							}
-							RConsole.println("Original y: " +String.valueOf(pos.getY())); 
+							//RConsole.println("Original y: " +String.valueOf(pos.getY())); 
 							
-							RConsole.println("Axis: "+axis);
+							//RConsole.println("Axis: "+axis);
 							
 							//Changed calculation
 							y = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
@@ -193,14 +193,16 @@ public class OdoCorrection {
 							// x-= LS_Offset
 							
 							
-							RConsole.println("New y: "+String.valueOf(TmpY));
+							//RConsole.println("New y: "+String.valueOf(TmpY));
 							
 							odo.setCoordinates(0, TmpY, theta, new boolean[] {false, true, true});
 						}
 						
 						// reset
 						RConsole.println("Odometer corrected");
-						RConsole.println("");
+						//RConsole.println("");
+						Sound.setVolume(100);
+						Sound.beep();
 						this.reset();
 						
 						
@@ -224,7 +226,7 @@ public class OdoCorrection {
 		offsetAngle = Math.atan(distTraveled / SystemConstants.LS_WIDTH);
 		offsetAngle = Odometer.convertToDeg(offsetAngle);
 		
-		RConsole.println("Offset angle: "+String.valueOf(offsetAngle));
+		//RConsole.println("Offset angle: "+String.valueOf(offsetAngle));
 		
 		offsetAngle = Odometer.adjustAngle(offsetAngle);
 
@@ -234,7 +236,7 @@ public class OdoCorrection {
 		theta = direction * 90 + coef * offsetAngle;
 		theta = Odometer.adjustAngle(theta);
 		
-		RConsole.println("New theta: " + String.valueOf(theta));
+		//RConsole.println("New theta: " + String.valueOf(theta));
 
 		return theta;
 	}

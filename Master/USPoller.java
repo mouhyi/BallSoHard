@@ -11,9 +11,8 @@ import lejos.util.TimerListener;
  * @see Printer
  */
 
-public class USPoller implements TimerListener{
+public class USPoller extends Thread{
 
-	private final int REFRESH = 50;
 	private int[] usDistances = new int[5];
 	private UltrasonicSensor us;
 	private int median;
@@ -25,8 +24,7 @@ public class USPoller implements TimerListener{
 	 */
 	public USPoller (UltrasonicSensor us) {
 		this.us = us;
-		Timer timer = new Timer(REFRESH, this);
-		timer.start();
+		this.start();
 	}
 	
 	/**
@@ -34,22 +32,28 @@ public class USPoller implements TimerListener{
      *
      * @author Mouhyi, Ryan
      */
-	public void timedOut() {
+	public void run() {
 	
 		int i;
 		int maxIndex = usDistances.length-1;
 		int middle = maxIndex/2;
 		
-		//Inserts sensor readings into an array and shifts them for every ping
-		for(i=0; i<maxIndex; i++){
-			usDistances[i]=usDistances[i+1];
+		while(true){
+			//Inserts sensor readings into an array and shifts them for every ping
+			for(i=0; i<maxIndex; i++){
+				usDistances[i]=usDistances[i+1];
+			}
+			usDistances[maxIndex]=us.getDistance();
+		
+			//Sorts data and returns median
+			filter(usDistances, 0);
+		
+			median = usDistances[middle];
+		
+			try{
+				Thread.sleep(50);
+			}catch(Exception e){}
 		}
-		usDistances[maxIndex]=us.getDistance();
-		
-		//Sorts data and returns median
-		filter(usDistances, 0);
-		
-		median = usDistances[middle];	
 	}
 	
 	/*
