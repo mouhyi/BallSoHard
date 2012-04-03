@@ -25,8 +25,6 @@ public class Robot {
 	public Robot(NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) {
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
-		rightMotor.setAcceleration(1500);
-		leftMotor.setAcceleration(1500);
 	}
 
 	/**
@@ -106,6 +104,16 @@ public class Robot {
 	}
 
 	/**
+	 * Set acceleration
+	 * 
+	 * @author Anthony
+	 */
+	public void setAcceleration(int accel) {
+		leftMotor.setAcceleration(accel);
+		rightMotor.setAcceleration(accel);
+	}
+
+	/**
 	 * Stop the robot
 	 * 
 	 * @author Mouhyi
@@ -153,7 +161,7 @@ public class Robot {
 			leftMotor.setSpeed((int) speed);
 		}
 	}
-	
+
 	/**
 	 * Move forward with the right wheel only
 	 * 
