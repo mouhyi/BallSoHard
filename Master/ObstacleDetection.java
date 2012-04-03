@@ -20,51 +20,23 @@ public class ObstacleDetection
 	
 	private USPoller left;
 	private USPoller right;
-	private Odometer odo;
-	private Coordinates coords;
 
 	/**
 	 * Constructor
 	 * 
 	 * @author Mouhyi, Ryan
 	 */
-	public ObstacleDetection (USPoller uspL, USPoller uspR, Odometer odo) {
+	public ObstacleDetection (USPoller uspL, USPoller uspR) {
 		this.left = uspL;
 		this.right = uspR;
-		this.odo = odo;
 	}
 	
 	/**
 	 * Sets a mode for determining whether or an obstacle has been detected
 	 * @author Ryan
 	 **/
-	public synchronized boolean obstacleDetected() {
-		coords = odo.getCoordinates();
-		int direction = odo.getDirection();
-		double x = coords.getX();
-		double y = coords.getY();
-		
-		/*
-		 * Filters out wall readings
-		 * @author Ryan
-		 */
-		//Facing south wall
-		if(x < TOLERANCE && direction == 3){
-			return false;
-		}
-		else if(y < TOLERANCE && direction == 0){
-			return false;
-		}
-	/*	
-		else if(y > 8 * SystemConstants.TILE && direction == 2){
-			return false;
-		}
-	
-		//Facing north wall
-		else if(x > 8*SystemConstants.TILE && direction == 1){
-			return false;
-		}
-	*/
+	public synchronized boolean obstacleDetected()
+	{
 		boolean leftObstacle = false;
 		boolean rightObstacle = false;
 		if(left.getDistance() < TOLERANCE)
