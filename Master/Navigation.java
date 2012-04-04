@@ -62,7 +62,7 @@ public class Navigation {
 		 */
 		double difference = Math.abs(coords.getTheta()-destAngle);
 		
-		if(difference > 2){
+		if(difference > 0.5){
 			snapper.setEnabled(false);
 			turnTo(destAngle);
 	//		RConsole.println("TravelTo: Turn completed ");
@@ -91,18 +91,30 @@ public class Navigation {
 			/*
 			 * Added a condition to only check one direction to prevent the robot from
 			 * continuing to move forward even after it has reached its destination
-			 * @author Ryan
+			 * @author Ryan, Mouhyi
 			 */
 			
-			//Moving horizontally
-			if(odo.getDirection() % 2 == 0){
-				if (Math.abs(x - coords.getX()) < DISTANCE_TOLERANCE){
+				
+			if(odo.getDirection()== 1){
+				if ( y < coords.getY() ){
 					break;
 				}
 			}
-			//Moving vertically
-			else{
-				if(Math.abs(y - coords.getY()) < DISTANCE_TOLERANCE) {
+			
+			if(odo.getDirection()==3){
+				if ( y > coords.getY() ){
+					break;
+				}
+			}
+			
+			if(odo.getDirection()==0){
+				if ( x < coords.getX() ){
+					break;
+				}
+			}
+			
+			if(odo.getDirection()==2){
+				if ( x > coords.getX() ){
 					break;
 				}
 			}
