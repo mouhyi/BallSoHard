@@ -35,8 +35,7 @@ public class Robot {
 	 */
 	public double getDisplacement() {
 		return (leftMotor.getTachoCount() * SystemConstants.LEFT_RADIUS + rightMotor
-				.getTachoCount()
-				* SystemConstants.RIGHT_RADIUS)
+				.getTachoCount() * SystemConstants.RIGHT_RADIUS)
 				* Math.PI / 360.0;
 	}
 
@@ -48,8 +47,7 @@ public class Robot {
 	 */
 	public double getHeading() {
 		return (-leftMotor.getTachoCount() * SystemConstants.LEFT_RADIUS + rightMotor
-				.getTachoCount()
-				* SystemConstants.RIGHT_RADIUS)
+				.getTachoCount() * SystemConstants.RIGHT_RADIUS)
 				/ SystemConstants.WIDTH;
 		// //// sign fixed
 	}
@@ -105,9 +103,84 @@ public class Robot {
 
 	}
 
+	/**
+	 * Set acceleration
+	 * 
+	 * @author Anthony
+	 */
+	public void setAcceleration(int accel) {
+		leftMotor.setAcceleration(accel);
+		rightMotor.setAcceleration(accel);
+	}
+
+	/**
+	 * Stop the robot
+	 * 
+	 * @author Mouhyi
+	 */
 	public void stop() {
 		leftMotor.setSpeed(0);
 		rightMotor.setSpeed(0);
+	}
+
+	/**
+	 * Stop the right wheel
+	 * 
+	 * @author Anthony
+	 */
+	public void stopRight() {
+		rightMotor.setSpeed(0);
+	}
+
+	/**
+	 * Stop the left wheel
+	 * 
+	 * @author Anthony
+	 */
+	public void stopLeft() {
+		leftMotor.setSpeed(0);
+	}
+
+	/**
+	 * Move forward with the left wheel only
+	 * 
+	 * @author Anthony
+	 */
+	public void advanceLeft(double speed) {
+
+		if (speed > 0) {
+			leftMotor.forward();
+		} else {
+			leftMotor.backward();
+			speed = -speed;
+		}
+
+		if (speed > 900) {
+			leftMotor.setSpeed(900);
+		} else {
+			leftMotor.setSpeed((int) speed);
+		}
+	}
+
+	/**
+	 * Move forward with the right wheel only
+	 * 
+	 * @author Anthony
+	 */
+	public void advanceRight(double speed) {
+
+		if (speed > 0) {
+			rightMotor.forward();
+		} else {
+			rightMotor.backward();
+			speed = -speed;
+		}
+
+		if (speed > 900) {
+			rightMotor.setSpeed(900);
+		} else {
+			rightMotor.setSpeed((int) speed);
+		}
 	}
 
 	/**
@@ -124,8 +197,8 @@ public class Robot {
 				.setSpeed(convertDistance(SystemConstants.RIGHT_RADIUS, speed));
 		leftMotor.rotate(
 				convertDistance(SystemConstants.LEFT_RADIUS, distance), true);
-		rightMotor.rotate(convertDistance(SystemConstants.RIGHT_RADIUS,
-				distance), false);
+		rightMotor.rotate(
+				convertDistance(SystemConstants.RIGHT_RADIUS, distance), false);
 		this.stop();
 
 	}
@@ -138,15 +211,20 @@ public class Robot {
 	public void rotateAxis(double angle, int speed) {
 		this.stop();
 		leftMotor.setSpeed(convertDistance(SystemConstants.LEFT_RADIUS, speed));
-		rightMotor.setSpeed(convertDistance(SystemConstants.RIGHT_RADIUS, speed));
-		leftMotor.rotate(-convertAngle(SystemConstants.LEFT_RADIUS,
-				SystemConstants.WIDTH, angle), true);
-		rightMotor.rotate(convertAngle(SystemConstants.RIGHT_RADIUS,
-				SystemConstants.WIDTH, angle), false);
+		rightMotor
+				.setSpeed(convertDistance(SystemConstants.RIGHT_RADIUS, speed));
+		leftMotor.rotate(
+				-convertAngle(SystemConstants.LEFT_RADIUS,
+						SystemConstants.WIDTH, angle), true);
+		rightMotor.rotate(
+				convertAngle(SystemConstants.RIGHT_RADIUS,
+						SystemConstants.WIDTH, angle), false);
 		this.stop();
 	}
+
 	/**
 	 * Move robot forward
+	 * 
 	 * @param Fspeed
 	 */
 	public void advance(double Fspeed) {
