@@ -221,36 +221,64 @@ public class Navigation {
 
 	}
 
-	public void getBall(double x, double y, int orientation) {
-
-		// Robot cannot localize on the node underneath the dispenser
-
+	
+	/**
+	 * Retreives balls from the dispenser:
+	 * Localizes one tile away from the dispenser then backs into the button
+	 * @params x, y, omega
+	 * @author Ryan
+	 * 
+	 */
+public void getBall(double x, double y, int orientation){
+		
 		/*
-		 * From specs: Its orientation, omega, is specified as an integer
-		 * {1,2,3,4} corresponding to the cardinal directions N, E, S, W.
+		 * From specs:
+		 * {1,2,3,4} corresponds to the cardinal directions N, E, S, W.
+		 *
+		 * Convert orientation to our convention
+		 * 0:E, 1:N, 2:W, 3:S
 		 */
-
+				
 		double startX = x, startY = y;
-
-		if (orientation == 1) {
-			startY = y + SystemConstants.TILE;
-		} else if (orientation == 2) {
-			startX = x - SystemConstants.TILE;
-		} else if (orientation == 3) {
-			startY = y - SystemConstants.TILE;
-		} else {
-			startX = x + SystemConstants.TILE;
+				
+		//North
+		if(orientation == 1){
+			startY = y+SystemConstants.TILE;
 		}
-
+		//East
+		else if(orientation == 2){
+			startX = x+SystemConstants.TILE;
+			orientation = 0;
+		}
+		//South
+		else if(orientation == 3){
+			startY = y-SystemConstants.TILE;
+		}
+		//West
+		else{
+			startX = x-SystemConstants.TILE;
+			orientation = 2;
+		}
+		
+		int alignDirection = orientation - 1;
+		if(alignDirection == -1){
+			alignDirection = 3;
+		}
+		
+		//Move to one node away from the dispenser
 		GoTo(startX, startY);
-		turnTo(90);
-		robot.goForward(7, 5);
-		turnTo(180);
-
-		robot.goForward(-33, 5);
-		for (int i = 0; i < 4; i++) {
-			robot.goForward(5, 5);
-			robot.goForward(-5, 5);
+		
+		//Align the back of the robot with the button
+		turnTo(90 * alignDirection);
+		robot.goForward(7,5);
+		
+		turnTo(90 * orientation);
+		
+		robot.goForward(-33,5);
+		for(int i = 0; i < 4; i++){
+			robot.goForward(5,5);
+			robot.goForward(-5,5);
+>>>>>>> eee1905383e7a33dcea981bc9e585c332cbd1081
 		}
 	}
 
