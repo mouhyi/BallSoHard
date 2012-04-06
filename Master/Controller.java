@@ -1,14 +1,8 @@
 package Master;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import javax.bluetooth.RemoteDevice;
-
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
-import lejos.nxt.Sound;
-import lejos.nxt.comm.*;
+import lejos.nxt.comm.RConsole;
 import bluetooth.*;
 
 /**
@@ -21,53 +15,82 @@ public class Controller {
 	public static void main(String[] args) {
 
 		RConsole.openBluetooth((30000));
-		
-		Sound.setVolume(30);
-		Sound.beepSequence();
+
 		Button.waitForPress();
 		
-		Robot robot = new Robot(SystemConstants.leftMotor, SystemConstants.rightMotor);
+
+		/*
+		 * BluetoothConnection conn = new BluetoothConnection(); Transmission t
+		 * = conn.getTransmission();
+		 * 
+		 * int w1 = 0; int w2 = 0; int bx = 0; int by = 0; int bsigma = 0;
+		 * 
+		 * if (t == null){ LCD.drawString("Failed to read transmission", 0, 5);
+		 * } else { StartCorner corner = t.startingCorner; PlayerRole role =
+		 * t.role; w1 = t.w1; w2 = t.w2; bx = t.bx; by = t.by; bsigma =
+		 * t.bsigma;
+		 * 
+		 * // print out the transmission information conn.printTransmission(); }
+		 */
+
+		Robot robot = new Robot(SystemConstants.leftMotor,
+				SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
 		OdoCorrection snapper = new OdoCorrection(odo, robot);
+		snapper.setEnabled(true);
+
+		
 		LineDetector.init(snapper, SystemConstants.FORWARD_SPEED);
-		ObstacleDetection us = new ObstacleDetection(new USPoller(SystemConstants.USL), new USPoller(SystemConstants.USR));
+		
+		
+		ObstacleDetection us = new ObstacleDetection(new USPoller(
+				SystemConstants.USL), new USPoller(SystemConstants.USR));
+		
 		Navigation nav = new Navigation(odo, robot, us, snapper);
+
+		
+
 		Printer lcd = new Printer(odo);
 
-		//Clear out initial light sensor values
-		try{
-			Thread.sleep(2000);
-		}catch(Exception e){}
-		snapper.setEnabled(true);
-		nav.setAvoidance(false);
+		// Drive Square
 		
-	/*	nav.travelTo(2*SystemConstants.TILE, 0);
-		RConsole.println("Travelled to (60,0)");
-		snapper.setEnabled(false);
-		RConsole.println("Disabled snapper");
-		nav.turnTo(90);
-		RConsole.println("Turned to 90");
-		snapper.setEnabled(true);
-		RConsole.println("Enabled snapper");
-		nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
-		RConsole.println("Traveled to 60, 60");
-		snapper.setEnabled(false);
-		nav.turnTo(180);
-		snapper.setEnabled(true);
-		nav.travelTo(0, 2*SystemConstants.TILE);
-	*/
-	//	RConsole.println("Travelled to destination");
+		/* nav.travelTo(SystemConstants.TILE, 0);
+		 
+		 nav.travelTo(2*SystemConstants.TILE, 0);
+		 
+		 nav.travelTo(2*SystemConstants.TILE, SystemConstants.TILE);
+		 nav.travelTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
+		 nav.travelTo(SystemConstants.TILE, 2*SystemConstants.TILE);
+		 nav.travelTo(0, 2*SystemConstants.TILE); nav.travelTo(0,SystemConstants.TILE);
+		 nav.travelTo(0, 0);*/
+		 
+
+		//nav.GoTo(SystemConstants.TILE, 1 * SystemConstants.TILE);
+		//nav.travelTo(2* SystemConstants.TILE, 0);
 		
+		nav.travelTo(1*SystemConstants.TILE, 0);
 		nav.travelTo(2*SystemConstants.TILE, 0);
-		nav.travelTo(2*SystemConstants.TILE,2*SystemConstants.TILE);
+		nav.travelTo(3*SystemConstants.TILE, 0);
+		nav.travelTo(4*SystemConstants.TILE, 0);
+		nav.travelTo(5*SystemConstants.TILE, 0);
 		
 		
-//		nav.GoTo(2*SystemConstants.TILE, 2*SystemConstants.TILE);
-//		nav.GoTo(0, 0);
-//		
-		RConsole.println("Finished.");
+		nav.travelTo(5*SystemConstants.TILE, 1*SystemConstants.TILE);
+		nav.travelTo(5*SystemConstants.TILE, 2*SystemConstants.TILE);
+		nav.travelTo(5*SystemConstants.TILE, 3*SystemConstants.TILE);
+		nav.travelTo(5*SystemConstants.TILE, 4*SystemConstants.TILE);
+		nav.travelTo(5*SystemConstants.TILE, 5*SystemConstants.TILE);
 		
 		
-	//	System.exit(0);
+		
+		//nav.travelTo(4*SystemConstants.TILE, 4*SystemConstants.TILE );
+		//nav.turnTo(90);
+		
+		
+		RConsole.println("END Conroller ");
+		
+		Button.waitForPress();
+
 	}
+
 }

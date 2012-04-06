@@ -27,14 +27,17 @@ public class OdoCorrection {
 	private int curDirection, prevDirection;
 	private double tachoCount;
 
-	private long startTime;
-	private static int timedout = 2500;
+	private Object lock ;
+	private boolean correcting;
 
 	public OdoCorrection(Odometer odo, Robot robot) {
 		this.odo = odo;
 		this.robot = robot;
 		detected = 0;
 		enabled = false;
+		
+		lock = new Object();
+		correcting = false;
 
 	}
 
@@ -75,19 +78,6 @@ public class OdoCorrection {
 			}
 			// If it's a different line
 			else {
-				
-				/*
-				 * Uncommented this statement to stop correction from occurring
-				 * if the line detection happens too far away from each other
-				 * Also reduced the timedout period to 2.5s
-				 * @author Ryan
-				 */
-				if (System.currentTimeMillis() - startTime > timedout) {
-					reset(detector);
-					return;
-				}
-				// second line
-				else {
 					/*
 					 * Refresh direction before correction
 					 */
@@ -109,6 +99,12 @@ public class OdoCorrection {
 						return;
 					}
 					else{
+						
+						synchronized(lock){
+							correcting = true;
+						}
+						
+						
 						double theta = this.correctAngle(distTraveled, curDirection, leftFirst);
 						Coordinates pos = odo.getCoordinates();
 						
@@ -132,9 +128,10 @@ public class OdoCorrection {
 								axis = Math.round((x+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
 							}
 							
-							//RConsole.println("Original theta: "+ String.valueOf(pos.getTheta()));
+							RConsole.println("Original theta: "+ String.valueOf(pos.getTheta()));
 							
-							//RConsole.println("Original x: "+String.valueOf(pos.getX()));
+							RConsole.println("Original x: "+String.valueOf(pos.getX()));
+							
 							
 							//Changed calculation
 							x = axis + SystemConstants.LS_TOCENTRE*Math.sin(Math.toRadians(theta+90-SystemConstants.LS_ANGLE_OFFSET));
@@ -144,15 +141,9 @@ public class OdoCorrection {
 							
 							double TmpX = axis + ( distTraveled)/2 * Math.cos(theta)  + SystemConstants.LS_MIDDLE  ;
 							
-							//RConsole.println("TmpX: "+String.valueOf(TmpX));
 							
-							/*	ORIGINAL
-							 * 	The first line correction always results in a negative x value
-							 */
-							//x = axis + ( distTraveled - SystemConstants.LS_MIDDLE )/2 * Math.cos(theta);
-							// x-= LS_Offset
 							
-							//RConsole.println("New x: " + String.valueOf(TmpX));
+							RConsole.println("New x: " + String.valueOf(TmpX));
 							
 							Sound.setVolume(50);
 							Sound.beep();
@@ -179,7 +170,7 @@ public class OdoCorrection {
 							else{
 								axis = Math.round((y+SystemConstants.LS_MIDDLE) / SystemConstants.TILE ) * SystemConstants.TILE;
 							}
-							//RConsole.println("Original y: " +String.valueOf(pos.getY())); 
+							RConsole.println("Original y: " +String.valueOf(pos.getY())); 
 							
 							//RConsole.println("Axis: "+axis);
 							
@@ -188,12 +179,7 @@ public class OdoCorrection {
 							
 							double TmpY = axis + ( distTraveled)/2 * Math.sin(theta)  + SystemConstants.LS_MIDDLE  ;
 							
-							//ORIGINAL
-							//y = axis + ( distTraveled - SystemConstants.LS_MIDDLE  )/2 * Math.sin(theta);
-							// x-= LS_Offset
-							
-							
-							//RConsole.println("New y: "+String.valueOf(TmpY));
+							RConsole.println("New y: "+String.valueOf(TmpY));
 							
 							odo.setCoordinates(0, TmpY, theta, new boolean[] {false, true, true});
 						}
@@ -207,10 +193,14 @@ public class OdoCorrection {
 						
 						
 					}
+					
+					synchronized(lock){
+						correcting = false;
+					}
 				}
+			
 			}
 		}
-	}
 
 	/**
 	 * This method computes the corrected value of the polar angle theta of the
@@ -244,7 +234,6 @@ public class OdoCorrection {
 	public void reset() {
 		this.detected = 0;
 		tachoCount = 0;
-		startTime = 0;
 		prevDirection = curDirection;
 	}
 	
@@ -253,7 +242,6 @@ public class OdoCorrection {
 		detected = 1;
 		leftFirst = detector.isLeft();
 		tachoCount = (leftFirst) ? robot.getLeftTacho() : robot.getRightTacho();
-		startTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -267,5 +255,11 @@ public class OdoCorrection {
 
 	public synchronized boolean isEnabled() {
 		return enabled;
+	}
+	
+	public boolean isCorrecting(){
+		synchronized(lock){
+			return correcting;
+		}
 	}
 }

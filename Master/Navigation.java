@@ -51,6 +51,8 @@ public class Navigation {
 		/*
 		 * try{ Thread.sleep(1000); }catch(Exception e){;}
 		 */
+		
+		robot.stop();
 
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
@@ -63,10 +65,8 @@ public class Navigation {
 		double difference = Math.abs(coords.getTheta()-destAngle);
 		
 		if(difference > 0.5){
-			snapper.setEnabled(false);
 			turnTo(destAngle);
-	//		RConsole.println("TravelTo: Turn completed ");
-			snapper.setEnabled(true);
+			RConsole.println("Turn: from "+coords.getTheta()+" TO "+destAngle);
 		}
 		else{
 	//		RConsole.println("TravelTo: Already facing destination");
@@ -78,12 +78,14 @@ public class Navigation {
 		 * @author Ryan
 		 */
 		
-		if ( us.getDistance() < ObstacleDist ){ 
+		/*if ( us.getDistance() < ObstacleDist ){ 
 			RConsole.println("Obstacle");
 			return false; 
-		}
+		}*/
 		
 	//	RConsole.println("TravelTo: Advance");
+		
+		//robot.advance(SystemConstants.FORWARD_SPEED);
 
 		while (true) {
 			coords = odo.getCoordinates();
@@ -94,6 +96,9 @@ public class Navigation {
 			 * @author Ryan, Mouhyi
 			 */
 			
+			while(snapper.isCorrecting()){
+				robot.stop();
+			}
 				
 			if(odo.getDirection()== 1){
 				if ( y < coords.getY() ){
@@ -118,6 +123,8 @@ public class Navigation {
 					break;
 				}
 			}
+			
+			
 			robot.advance(SystemConstants.FORWARD_SPEED);
 		}
 		robot.stop();

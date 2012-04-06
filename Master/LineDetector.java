@@ -86,7 +86,7 @@ public class LineDetector extends Thread {
 			diffCD = lightValue[2]-lightValue[3];
 			totalDiff = diffAB-diffCD;
 			
-			if(totalDiff >= DETECTION_THRESHOLD){
+			if(totalDiff >= DETECTION_THRESHOLD && totalDiff <= 100){
 				
 					/*if(this == left){
 						RConsole.println("Left line detected");
@@ -104,7 +104,7 @@ public class LineDetector extends Thread {
 					lineDetected = true;
 					notifyListener();
 			}
-			try { Thread.sleep(5); } catch(Exception e){}
+			try { Thread.sleep(500); } catch(Exception e){}
 		}
 	}
 

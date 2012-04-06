@@ -46,7 +46,7 @@ public class SystemConstants {
 	
 	//Distance to centre of both light sensors and centre of rotation
 	// @Mouhyi: I don't know I added a 1 to the formula but it seems to improve things
-	public static final double LS_MIDDLE = Math.sqrt(Math.pow(LS_TOCENTRE,2)-Math.pow(LS_WIDTH/2, 2)) + 1;
+	public static final double LS_MIDDLE = Math.sqrt(Math.pow(LS_TOCENTRE,2)-Math.pow(LS_WIDTH/2, 2)) ;
 	
 	//Angle between light sensor and middle of robot
 	public static final double LS_ANGLE_OFFSET = Math.toDegrees(Math.asin((LS_WIDTH/2)/LS_TOCENTRE));   		//In DEGREES
