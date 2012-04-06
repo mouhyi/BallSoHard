@@ -15,6 +15,7 @@ public class Navigation {
 	private Robot robot;
 	private ObstacleDetection us;
 	OdoCorrection snapper;
+	Localization localizer;
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
 	private static final double DISTANCE_TOLERANCE = 3; // in cm
@@ -30,11 +31,12 @@ public class Navigation {
 	 * @author Mouhyi
 	 */
 	public Navigation(Odometer odo, Robot robot, ObstacleDetection us,
-			OdoCorrection snapper) {
+			OdoCorrection snapper, Localization localizer) {
 		this.odo = odo;
 		this.robot = robot;
 		this.us = us;
 		this.snapper = snapper;
+		this.localizer = localizer;
 	}
 
 	/**
@@ -229,6 +231,8 @@ public class Navigation {
 			if(obstacle){
 				avoidObstacle(x, y);
 			}
+			
+			localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 
 			do {
 				obstacle = false;
@@ -264,13 +268,17 @@ public class Navigation {
 				avoidObstacle(x, y);
 			}
 
+			localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+			
 			// if(obstacle ) call obstacle avoidance
 			// else if destination reached break
 			// else, i.e, obstacle in destination: return -1;
 			robot.stop();
+			
+			
 			break;
 			
-
+			
 		}
 
 	}

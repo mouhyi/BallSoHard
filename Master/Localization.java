@@ -88,48 +88,53 @@ public class Localization {
 		double xAxis = Math.round(x / SystemConstants.TILE ) *SystemConstants.TILE;
 		double yAxis = Math.round(y/ SystemConstants.TILE ) * SystemConstants.TILE;
 
+		/*
+		 * Tweaked the distances that it reverses before looking for lines
+		 * @author Ryan
+		 */
+		
 		// BOTTOM LEFT of desired intersection with respect to positive axis
 		if (x < xAxis && y < yAxis) {
 			// Sets up for light localization
 			robot.rotateAxis(0 - theta, 5);
-			robot.goForward(-5, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-5, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(theta - 90, 5);
 		}
 		// BOTTOM RIGHT of desired intersection with respect to positive axis
 		else if (x > xAxis && y < yAxis){
 			// Sets up for light localization
 			robot.rotateAxis(90 - theta, 5);
-			robot.goForward(-5, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-5, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(theta - 180, 5);
 		}
 		// TOP RIGHT of desired intersection with respect to positive axis
 		else if (x > xAxis && y > yAxis){
 			// Sets up for light localization
 			robot.rotateAxis(180 - theta, 5);
-			robot.goForward(-5, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-5, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(theta - 270, 5);
 		}
 		// TOP LEFT of desired intersection with respect to positive axis
 		else if (x < xAxis && y > yAxis){
 			// Sets up for light localization
 			robot.rotateAxis(270 - theta, 5);
-			robot.goForward(-3, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-3, 5);
-			this.doLightLocalization3();
+			robot.goForward(-10, 10);
+			this.doLightLocalization();
 			robot.rotateAxis(theta - 0, 5);
 		}
 		
@@ -222,6 +227,13 @@ public class Localization {
 		// Initialize two booleans that represent whether or not the right
 		// and left sensors have seen lines
 		boolean rightSeen = false, leftSeen = false;
+		
+		/*
+		 * Initialize another boolean for the case when one line isn't detected
+		 * @author Ryan
+		 */
+		
+		boolean lineMissed = false;
 
 		// Initialize lightTimer objects
 		LightTimer leftLight = new LightTimer(lsL);
@@ -255,10 +267,14 @@ public class Localization {
 			robot.advanceLeft(75);
 			robot.advanceLeft(75);
 			while (!leftSeen) {
-				/*
-				 * if(currentAngle - odo.getCoordinates().getTheta() > 30) {
-				 * robot.advanceLeft(-25); } else { robot.advanceLeft(25); }
-				 */
+				  if(currentAngle - odo.getCoordinates().getTheta() > 30) {
+					  if(!lineMissed){
+						  robot.stopLeft();
+						  lineMissed = true;
+					  }
+					  robot.advanceLeft(-75);robot.advanceLeft(-75); 
+				 } else { robot.advanceLeft(75);robot.advanceLeft(75); }
+				
 				// robot.advanceLeft(25);
 				if (leftLight.lineDetected()) {
 					leftSeen = true;
@@ -267,14 +283,22 @@ public class Localization {
 					robot.stopLeft();
 				}
 			}
+			lineMissed = false;
+			
 		} else if (leftSeen) {
 			robot.advanceRight(75);
 			robot.advanceRight(75);
 			while (!rightSeen) {
-				/*
-				 * if(currentAngle - odo.getCoordinates().getTheta() < -30) {
-				 * robot.advanceRight(-25); } else { robot.advanceRight(25); }
-				 */
+				
+				  if(currentAngle - odo.getCoordinates().getTheta() < -30) {
+					  if(!lineMissed){
+						  robot.stopRight();
+						  lineMissed = true;
+					  }
+					  robot.advanceRight(-75);robot.advanceRight(-75); 
+				  } else { robot.advanceRight(75);robot.advanceRight(75);
+				  }
+				 
 				// robot.advanceRight(25);
 
 				if (rightLight.lineDetected()) {
