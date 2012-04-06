@@ -74,15 +74,12 @@ public class Controller {
 		nav.travelTo(1*SystemConstants.TILE, 0);
 		nav.travelTo(2*SystemConstants.TILE, 0);
 		nav.travelTo(3*SystemConstants.TILE, 0);
-		nav.travelTo(4*SystemConstants.TILE, 0);
-		nav.travelTo(5*SystemConstants.TILE, 0);
 		
 		
-		nav.travelTo(5*SystemConstants.TILE, 1*SystemConstants.TILE);
-		nav.travelTo(5*SystemConstants.TILE, 2*SystemConstants.TILE);
-		nav.travelTo(5*SystemConstants.TILE, 3*SystemConstants.TILE);
-		nav.travelTo(5*SystemConstants.TILE, 4*SystemConstants.TILE);
-		nav.travelTo(5*SystemConstants.TILE, 5*SystemConstants.TILE);
+		nav.travelTo(3*SystemConstants.TILE, 1*SystemConstants.TILE);
+		nav.travelTo(3*SystemConstants.TILE, 2*SystemConstants.TILE);
+		nav.travelTo(3*SystemConstants.TILE, 3*SystemConstants.TILE);
+		
 		
 		localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 		
