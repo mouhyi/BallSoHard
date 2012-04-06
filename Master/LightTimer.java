@@ -8,7 +8,7 @@ public class LightTimer implements TimerListener
 {
 	
 	private final int SENSOR_THRESHOLD = 40;
-	private final int DETECTION_THRESHOLD = 40;
+	private final int DETECTION_THRESHOLD = 30;
 	private int[] lightValue = new int[6];
 	private LightSensor sensor; 
 	private Timer lightTimer;
@@ -52,6 +52,7 @@ public class LightTimer implements TimerListener
 			int totalDiff = diffAB-diffCD;
 			RConsole.println("totalDiff = "+ totalDiff);
 			
+			// The total diff will be incorrect at first since the array is inialized at 0.
 			if(totalDiff >= DETECTION_THRESHOLD && totalDiff <= 100){
 				
 					/*if(this == left){
