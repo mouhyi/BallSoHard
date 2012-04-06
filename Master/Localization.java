@@ -90,33 +90,45 @@ public class Localization {
 
 		// BOTTOM LEFT of desired intersection with respect to positive axis
 		if (x < xAxis && y < yAxis) {
+			// Sets up for light localization
 			robot.rotateAxis(0 - theta, 5);
+			robot.goForward(-5, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(90, 5);
+			robot.goForward(-5, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(theta - 90, 5);
 		}
 		// BOTTOM RIGHT of desired intersection with respect to positive axis
 		else if (x > xAxis && y < yAxis){
+			// Sets up for light localization
 			robot.rotateAxis(90 - theta, 5);
+			robot.goForward(-5, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(90, 5);
+			robot.goForward(-5, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(theta - 180, 5);
 		}
 		// TOP RIGHT of desired intersection with respect to positive axis
 		else if (x > xAxis && y > yAxis){
+			// Sets up for light localization
 			robot.rotateAxis(180 - theta, 5);
+			robot.goForward(-5, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(90, 5);
+			robot.goForward(-5, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(theta - 270, 5);
 		}
 		// TOP LEFT of desired intersection with respect to positive axis
 		else if (x < xAxis && y > yAxis){
+			// Sets up for light localization
 			robot.rotateAxis(270 - theta, 5);
+			robot.goForward(-3, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(90, 5);
+			robot.goForward(-3, 5);
 			this.doLightLocalization3();
 			robot.rotateAxis(theta - 0, 5);
 		}
