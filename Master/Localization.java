@@ -73,6 +73,57 @@ public class Localization {
 		}
 
 	}
+	
+	/**
+	 * Localization routine for after travel
+	 * 
+	 * @author Mouhyi, JDAlfaro, Anthony
+	 * 
+	 * @Note It follows the same algorithm of light localization but uses the data from the odometer to determine the closes intersection
+	 */
+	public void MidLocalization(double x, double y, double theta){
+		robot.setAcceleration(1500);
+		
+		// Determine closest intersection
+		double xAxis = Math.round(x / SystemConstants.TILE ) *SystemConstants.TILE;
+		double yAxis = Math.round(y/ SystemConstants.TILE ) * SystemConstants.TILE;
+
+		// BOTTOM LEFT of desired intersection with respect to positive axis
+		if (x < xAxis && y < yAxis) {
+			robot.rotateAxis(0 - theta, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(90, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(theta - 90, 5);
+		}
+		// BOTTOM RIGHT of desired intersection with respect to positive axis
+		else if (x > xAxis && y < yAxis){
+			robot.rotateAxis(90 - theta, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(90, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(theta - 180, 5);
+		}
+		// TOP RIGHT of desired intersection with respect to positive axis
+		else if (x > xAxis && y > yAxis){
+			robot.rotateAxis(180 - theta, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(90, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(theta - 270, 5);
+		}
+		// TOP LEFT of desired intersection with respect to positive axis
+		else if (x < xAxis && y > yAxis){
+			robot.rotateAxis(270 - theta, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(90, 5);
+			this.doLightLocalization3();
+			robot.rotateAxis(theta - 0, 5);
+		}
+		
+		odo.setCoordinates(xAxis, yAxis, 0, new boolean[] { true, true, false });
+		robot.setAcceleration(6000);
+	}
 
 	/**
 	 * US Localization routine: falling edge
