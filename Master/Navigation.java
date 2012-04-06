@@ -282,6 +282,42 @@ public class Navigation {
 		}
 
 	}
+public void getBall(double x, double y, int orientation){
+		
+		//Robot cannot localize on the node underneath the dispenser
+		
+		/*
+		 * From specs:
+		 * Its orientation, omega, is specified as an integer
+		 *	{1,2,3,4} corresponding to the cardinal directions N, E, S, W.
+		 */
+		
+		double startX = x, startY = y;
+		
+		if(orientation == 1){
+			startY = y+SystemConstants.TILE;
+		}
+		else if(orientation == 2){
+			startX = x-SystemConstants.TILE;
+		}
+		else if(orientation == 3){
+			startY = y-SystemConstants.TILE;
+		}
+		else{
+			startX = x+SystemConstants.TILE;
+		}
+		
+		GoTo(startX, startY);
+		turnTo(90);
+		robot.goForward(7,5);
+		turnTo(180);
+		
+		robot.goForward(-33,5);
+		for(int i = 0; i < 4; i++){
+			robot.goForward(5,5);
+			robot.goForward(-5,5);
+		}
+	}
 
 	/**
 	 * Drive one TILE and correct orientation
