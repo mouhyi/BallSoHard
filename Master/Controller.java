@@ -47,6 +47,9 @@ public class Controller {
 				SystemConstants.USL), new USPoller(SystemConstants.USR));
 		
 		Navigation nav = new Navigation(odo, robot, us, snapper);
+		
+		Localization localizer = new Localization(odo, robot, new LightSensor(SensorPort.S1), new LightSensor(SensorPort.S4),
+				new USPoller(new UltrasonicSensor(SensorPort.S2)), new USPoller(new UltrasonicSensor(SensorPort.S3)));
 
 		
 
@@ -81,7 +84,7 @@ public class Controller {
 		nav.travelTo(5*SystemConstants.TILE, 4*SystemConstants.TILE);
 		nav.travelTo(5*SystemConstants.TILE, 5*SystemConstants.TILE);
 		
-		
+		localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 		
 		//nav.travelTo(4*SystemConstants.TILE, 4*SystemConstants.TILE );
 		//nav.turnTo(90);
