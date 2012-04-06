@@ -133,7 +133,7 @@ public class Localization {
 			robot.rotateAxis(theta - 0, 5);
 		}
 		
-		odo.setCoordinates(xAxis, yAxis, 0, new boolean[] { true, true, false });
+		odo.setCoordinates(xAxis, yAxis, theta, new boolean[] { true, true, true });
 		robot.setAcceleration(6000);
 	}
 
