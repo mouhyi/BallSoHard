@@ -53,68 +53,80 @@ public class Navigation {
 		/*
 		 * try{ Thread.sleep(1000); }catch(Exception e){;}
 		 */
-
+		
 		robot.stop();
 
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
-
-		//Doesn't turn if error is too small		 
-		double difference = Math.abs(coords.getTheta() - destAngle);
-
-		if (difference > 0.5) {
+		
+		/*
+		 * Doesn't turn if error is too small
+		 * @author Ryan
+		 */
+		double difference = Math.abs(coords.getTheta()-destAngle);
+		
+		if(difference > 0.5){
 			turnTo(destAngle);
-			RConsole.println("Turn: from " + coords.getTheta() + " TO "
-					+ destAngle);
-		} else {
-			// RConsole.println("TravelTo: Already facing destination");
+			RConsole.println("Turn: from "+coords.getTheta()+" TO "+destAngle);
+		}
+		else{
+	//		RConsole.println("TravelTo: Already facing destination");
 		}
 
 		
-		//Uncommented this to work on obstacle avoidance
-
-		if (us.getDistance() < ObstacleDist) {
+		/*
+		 * Uncommented this to work on obstacle avoidance
+		 * @author Ryan
+		 */
+		
+		/*if ( us.getDistance() < ObstacleDist ){ 
 			RConsole.println("Obstacle");
-			return false;
-		}
-
-		// RConsole.println("TravelTo: Advance");
-
-		// robot.advance(SystemConstants.FORWARD_SPEED);
+			return false; 
+		}*/
+		
+	//	RConsole.println("TravelTo: Advance");
+		
+		//robot.advance(SystemConstants.FORWARD_SPEED);
 
 		while (true) {
 			coords = odo.getCoordinates();
-
 			
-			 /* Added a condition to only check one direction to prevent the
-			 * robot from continuing to move forward even after it has reached
-			 * its destination */
-
-			if (odo.getDirection() == 1) {
-				if (y < coords.getY()) {
+			/*
+			 * Added a condition to only check one direction to prevent the robot from
+			 * continuing to move forward even after it has reached its destination
+			 * @author Ryan, Mouhyi
+			 */
+			
+			while(snapper.isCorrecting()){
+				robot.stop();
+			}
+				
+			if(odo.getDirection()== 1){
+				if ( y < coords.getY() ){
 					break;
 				}
 			}
-
-			if (odo.getDirection() == 3) {
-				if (y > coords.getY()) {
+			
+			if(odo.getDirection()==3){
+				if ( y > coords.getY() ){
 					break;
 				}
 			}
-
-			if (odo.getDirection() == 0) {
-				if (x < coords.getX()) {
+			
+			if(odo.getDirection()==0){
+				if ( x < coords.getX() ){
 					break;
 				}
 			}
-
-			if (odo.getDirection() == 2) {
-				if (x > coords.getX()) {
+			
+			if(odo.getDirection()==2){
+				if ( x > coords.getX() ){
 					break;
 				}
 			}
-
+			
+			
 			robot.advance(SystemConstants.FORWARD_SPEED);
 		}
 		robot.stop();
@@ -122,7 +134,7 @@ public class Navigation {
 		turnTo(odo.getDirection() * 90); // / added to align
 
 		// RConsole.println("TravelTo: advance");
-		// RConsole.println("TravelTo ARRIVEDto: x=" + x + ",  y=" + y);
+	//	RConsole.println("TravelTo ARRIVEDto: x=" + x + ",  y=" + y);
 
 		return true;
 
@@ -137,7 +149,7 @@ public class Navigation {
 		double err;
 		destAngle = Odometer.adjustAngle(destAngle);
 
-		// robot.stop();
+//		robot.stop();
 
 		// save snapper state and disable
 		boolean tmp = snapper.isEnabled();
@@ -178,49 +190,98 @@ public class Navigation {
 		boolean obstacle = false;
 		int xDiff, yDiff;
 
-		// RConsole.println("Going to");
+	//	RConsole.println("Going to");
 		while (true) {
 
-			coords = odo.getCoordinates();
-			curX = coords.getX();
-			curY = coords.getY();
+			do {
+				coords = odo.getCoordinates();
+				curX = coords.getX();
+				curY = coords.getY();
+				
+				/* Number of tiles to move
+				 * Added absolute value in case destination < current location
+				 * @author Ryan
+				 */
+				xDiff = (int) Math.round(Math.abs(x - curX) / SystemConstants.TILE) - 1;
+				if(xDiff==-1) break;
 
-			obstacle = !travelTo(x, curY);
+				RConsole.println("xdiff" + xDiff);
 
+				/*
+				 * Added case for when the destination is less than the current location
+				 * @author Ryan
+				 */
+				if(x > curX){
+					obstacle = !travelTo(x - xDiff * SystemConstants.TILE, curY);
+				}
+				else{
+					obstacle = !travelTo(x + xDiff * SystemConstants.TILE, curY);
+				}
+				RConsole.println("Traveled one tile horizontally");
+
+				coords = odo.getCoordinates();
+				curX = coords.getX();
+				curY = coords.getY();
+				
+			} while (Math.abs(curX - x) > DISTANCE_TOLERANCE && !obstacle);
+			
 			/*
 			 * If an obstacle is detected, call avoidObstacle
 			 */
-			if (obstacle) {
+			if(obstacle){
 				avoidObstacle(x, y);
 			}
 			
-			coords = odo.getCoordinates();
-			localizer.MidLocalization(coords.getX(), coords.getY(), coords.getTheta());
+			localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 
-			// update position
-			curX = coords.getX();
-			curY = coords.getY();
+			do {
+				obstacle = false;
+				
+				/*
+				 * Added absolute value
+				 * @author Ryan
+				 */				
+				yDiff = (int) Math.round(Math.abs(y - curY) / SystemConstants.TILE) - 1;
+				if(yDiff==-1) break;
+				
+				RConsole.println("ydiff" + yDiff);
 
-			travelTo(curX, y);
+				/*
+				 * Added conditions
+				 * @author Ryan
+				 */
+				if(y > curY){
+					obstacle = !travelTo(curX, y - yDiff * SystemConstants.TILE);
+				}
+				else{
+					obstacle = !travelTo(curX, y + yDiff * SystemConstants.TILE);
+				}
+				
+				// update position
+				coords = odo.getCoordinates();
+				curX = coords.getX();
+				curY = coords.getY();
 
-			if (obstacle) {
+			} while (Math.abs(curY - y) > DISTANCE_TOLERANCE && !obstacle);
+			
+			if(obstacle){
 				avoidObstacle(x, y);
 			}
 
-			coords = odo.getCoordinates();
-			localizer.MidLocalization(coords.getX(), coords.getY(), coords.getTheta());
-
+			localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+			
 			// if(obstacle ) call obstacle avoidance
 			// else if destination reached break
 			// else, i.e, obstacle in destination: return -1;
 			robot.stop();
-
+			
+			
 			break;
-
+			
+			
 		}
 
 	}
-
 	
 	/**
 	 * Retreives balls from the dispenser:
@@ -278,7 +339,6 @@ public void getBall(double x, double y, int orientation){
 		for(int i = 0; i < 4; i++){
 			robot.goForward(5,5);
 			robot.goForward(-5,5);
->>>>>>> eee1905383e7a33dcea981bc9e585c332cbd1081
 		}
 	}
 
@@ -366,11 +426,10 @@ public void getBall(double x, double y, int orientation){
 	 * 
 	 * @author mouhyi
 	 */
-
+	
 	/*
 	 * Added parameters x and y to recursively call the GoTo method after
 	 * avoiding obstacles until it has reached its destination
-	 * 
 	 * @author Ryan
 	 */
 	public void avoidObstacle(double x, double y) {
@@ -396,7 +455,7 @@ public void getBall(double x, double y, int orientation){
 				navCorrect();
 			}
 		}
-
+		
 		this.GoTo(x, y);
 	}
 
