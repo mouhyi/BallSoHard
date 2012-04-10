@@ -21,17 +21,18 @@ public class SlaveCont {
 		int command = 0;
 		NXTRegulatedMotor loadMotor = Motor.B;
 		NXTRegulatedMotor holdMotor = Motor.A;
+		NXTRegulatedMotor defMotor = Motor.C;
 
 		Offense off = new Offense(loadMotor, holdMotor);
-		Defense def = new Defense();
+		Defense def = new Defense(defMotor);
 
 		NXTConnection connection = Bluetooth.waitForConnection();
 		DataInputStream dis = connection.openDataInputStream();
-		
+
 		try {
 			command = dis.readInt();
 			LCD.clear();
-			LCD.drawString("COmmand received.", 0, 0);
+			LCD.drawString("Command received.", 0, 0);
 		} catch (IOException e) {
 		}
 
@@ -40,8 +41,21 @@ public class SlaveCont {
 		if (command == 1) {
 			off.run();
 			LCD.clear();
+			command = 0;
 		} else if (command == 2) {
 			def.run();
+		}
+		
+		// Try to receive another command if trying to shoot again
+		try {
+			command = dis.readInt();
+			LCD.clear();
+			LCD.drawString("Command received.", 0, 0);
+		} catch (IOException e) {
+		}
+		if (command == 1) {
+			off.run();
+			LCD.clear();
 		}
 
 		Button.waitForPress();

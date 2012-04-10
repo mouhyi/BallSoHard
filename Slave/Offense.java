@@ -15,16 +15,21 @@ public class Offense implements Runnable {
 	private NXTRegulatedMotor loadMotor, holdMotor;
 
 	/**
+	 * Constructor for Offfense
+	 * 
+	 * @author Anthony
+	 */
+	public Offense(NXTRegulatedMotor loadMotor, NXTRegulatedMotor holdMotor) {
+		this.loadMotor = loadMotor;
+		this.holdMotor = holdMotor;
+	}
+	
+	/**
 	 * This method implements run method of the Runnable interface. Shoots the
 	 * ball.
 	 * 
 	 * @author Anthony
 	 */
-
-	public Offense(NXTRegulatedMotor loadMotor, NXTRegulatedMotor holdMotor) {
-		this.loadMotor = loadMotor;
-		this.holdMotor = holdMotor;
-	}
 
 	public void run() {
 		// Motor.A is the lock
