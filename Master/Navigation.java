@@ -20,16 +20,17 @@ public class Navigation {
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
 	private static final double DISTANCE_TOLERANCE = 3; // in cm
+	private static final double RESTRICTION_TOLERANCE = 10;
 
 	/** minimum distance necessary for the robot to move forward */
 	public static final int ObstacleDist = 50;
 
 	/**
-	 * Constructor
+	 * Constructor for Attacker
 	 * 
 	 * @param odo
 	 * 
-	 * @author Mouhyi
+	 * @author Mouhyi, Ryan
 	 */
 	public Navigation(Odometer odo, Robot robot, ObstacleDetection us,
 			OdoCorrection snapper, Localization localizer, int w1, int w2) {
@@ -40,6 +41,25 @@ public class Navigation {
 		this.localizer = localizer;
 		this.w1 = w1*SystemConstants.TILE;
 		this.w2 = w2*SystemConstants.TILE;
+	}
+	
+	/**
+	 * Constructor for Defender
+	 * 
+	 * @param odo
+	 * 
+	 * @author Mouhyi, Josh
+	 */
+	public Navigation(Odometer odo, Robot robot, ObstacleDetection us,
+			OdoCorrection snapper, Localization localizer) {
+		this.odo = odo;
+		this.robot = robot;
+		this.us = us;
+		this.snapper = snapper;
+		this.localizer = localizer;
+		// Arbitrary Large Value to Allow Defender to enter the real D-Zone
+		this.w1 = 0*SystemConstants.TILE;
+		this.w2 = 1*SystemConstants.TILE;
 	}
 
 	/**
@@ -209,29 +229,52 @@ public class Navigation {
 		boolean obstacle = false;
 		boolean destinationReached = false;
 		int xDiff, yDiff;
-
+		// I don't thiink you need to initialize anymore but leaving for not for good measure
+		double xDestination;
+		double yDestination;
+		// Boolean to determine circumstance of travel
+		boolean doneX = false, doneY = false, cantX = false, cantY = false;
+		
+		// Helps for special Case
+		double specialX;
+		double specialY;
+		if (odo.getCoordinates().getX() < 5*SystemConstants.TILE) {
+			specialX = 11*SystemConstants.TILE;
+		}
+		else {
+			specialX = -1*SystemConstants.TILE;
+		}
+		if (odo.getCoordinates().getY() < 5*SystemConstants.TILE) {
+			specialY = 11*SystemConstants.TILE;
+		}
+		else {
+			specialY = -1*SystemConstants.TILE;
+		}
+		
+		RConsole.println("Special X: "+ specialX);
+		RConsole.println("Special Y: "+ specialY);
 	//	RConsole.println("Going to");
 		while (!destinationReached) {
-			
-			double xDestination = 0;
-			double yDestination = 9 * SystemConstants.TILE;
 			
 			do {
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
 				
-				RConsole.println("Destination x: "+x);
-				RConsole.println("Current x: "+curX);
+				//RConsole.println("Destination x: "+x);
+				//RConsole.println("Current x: "+curX);
 				
 				/* Number of tiles to move
 				 * Added absolute value in case destination < current location
 				 * @author Ryan
 				 */
 				xDiff = (int) Math.round(Math.abs(x - curX) / SystemConstants.TILE) - 1;
-				if(xDiff==-1) break;
+				if(xDiff==-1 || doneX) {
+					doneX = true;
+					break;
+				}
 
-				RConsole.println("xdiff" + xDiff);
+				//RConsole.println("xdiff" + xDiff);
 
 				/*
 				 * Added condition to prevent entering defender zone
@@ -239,37 +282,52 @@ public class Navigation {
 				 */
 				if(x > curX){
 					xDestination = x - xDiff * SystemConstants.TILE;
-					if(xDestination < (5*SystemConstants.TILE + Math.round(w1/2))
-							&& xDestination > (5 * SystemConstants.TILE - Math.round(w1/2))
-							&& yDestination > 6 * SystemConstants.TILE
-							&& yDestination < 10* SystemConstants.TILE){
-						RConsole.println("Destination x in defender zone");
+					yDestination = curY;
+					if(xDestination <= (5*SystemConstants.TILE + Math.round(w1/2) + RESTRICTION_TOLERANCE)
+							&& xDestination >= (5 * SystemConstants.TILE - Math.round(w1/2) - RESTRICTION_TOLERANCE)
+							&& yDestination <= 9 * SystemConstants.TILE + 1*SystemConstants.TILE + RESTRICTION_TOLERANCE
+							&& yDestination >= 9 * SystemConstants.TILE - (w2 - 1*SystemConstants.TILE) -RESTRICTION_TOLERANCE){
+						RConsole.println("Destination x in defender zone (going right)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						cantX = true;
 						break;
 					}
 					else{
+						RConsole.println("No problem (going right)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						if(doneY) {
+							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+						}
+						doneY = false;
 						obstacle = !travelTo(xDestination, curY);
 					}
 				}
 				else{
 					xDestination = x + xDiff * SystemConstants.TILE;
-					if(xDestination < (5*SystemConstants.TILE + Math.round(w1/2))
-							&& xDestination > (5 *SystemConstants.TILE- Math.round(w1/2))
-							&& yDestination > 6 * SystemConstants.TILE
-							&& yDestination < 10* SystemConstants.TILE){
+					yDestination = curY;
+					if(xDestination <= (5*SystemConstants.TILE + Math.round(w1/2) + RESTRICTION_TOLERANCE)
+							&& xDestination >= (5 * SystemConstants.TILE - Math.round(w1/2) - RESTRICTION_TOLERANCE)
+							&& yDestination <= 9 * SystemConstants.TILE + 1*SystemConstants.TILE + RESTRICTION_TOLERANCE
+							&& yDestination >= 9* SystemConstants.TILE - (w2 - 1*SystemConstants.TILE) -RESTRICTION_TOLERANCE){
+						RConsole.println("Destination x in defender zone (going left)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						cantX = true;
 						break;
 					}
 					else{
+						RConsole.println("No problem (going left)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						if(doneY) {
+							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+						}
+						doneY = false;
 						obstacle = !travelTo(xDestination, curY);
 					}
 					
 				}
-				RConsole.println("Traveled one tile horizontally");
+				//RConsole.println("Traveled one tile horizontally");
 
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
 				
-			} while (Math.abs(curX - x) > DISTANCE_TOLERANCE && !obstacle);
+			} while (true/*Math.abs(curX - x) > DISTANCE_TOLERANCE && !obstacle*/);
 			
 			/*
 			 * If an obstacle is detected, call avoidObstacle
@@ -278,7 +336,9 @@ public class Navigation {
 				avoidObstacle(x, y);
 			}
 			
-	//		localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+			/*if (!cantX && !cantY) {
+				localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+			}*/
 
 			do {
 				obstacle = false;
@@ -288,13 +348,13 @@ public class Navigation {
 				 * @author Ryan
 				 */				
 				
-				RConsole.println("Destination y: "+y);
-				RConsole.println("Current y: "+curY);
-				
 				yDiff = (int) Math.round(Math.abs(y - curY) / SystemConstants.TILE) - 1;
-				if(yDiff==-1) break;
+				if(yDiff==-1 || doneY) {
+					doneY = true;
+					break;
+				}
 				
-				RConsole.println("ydiff" + yDiff);
+				//RConsole.println("ydiff" + yDiff);
 
 				/**
 				 * Added conditions
@@ -302,25 +362,41 @@ public class Navigation {
 				 */
 				if(y > curY){
 					yDestination = y - yDiff * SystemConstants.TILE;
-					if(yDestination < 10 * SystemConstants.TILE 
-							&& yDestination > 6 * SystemConstants.TILE
-							&& xDestination < (5 * SystemConstants.TILE + Math.round(w1/2))
-							&& xDestination > (5 * SystemConstants.TILE- Math.round(w1/2))){
+					xDestination = curX;
+					if(xDestination <= (5*SystemConstants.TILE + Math.round(w1/2) + RESTRICTION_TOLERANCE)
+							&& xDestination >= (5 * SystemConstants.TILE - Math.round(w1/2) - RESTRICTION_TOLERANCE)
+							&& yDestination <= 9 * SystemConstants.TILE + 1*SystemConstants.TILE + RESTRICTION_TOLERANCE
+							&& yDestination >= 9* SystemConstants.TILE - (w2 - 1*SystemConstants.TILE) - RESTRICTION_TOLERANCE){
+						RConsole.println("Destination y in defender zone (going right)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						cantY = true;
 						break;
 					}
 					else{
+						RConsole.println("No problem (going right)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						if(doneX) {
+							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+						}
+						doneX = false;
 						obstacle = !travelTo(curX, yDestination);
 					}
 				}
 				else{
 					yDestination = y + yDiff * SystemConstants.TILE;
-					if(yDestination < 10 * SystemConstants.TILE 
-							&& yDestination > 6 * SystemConstants.TILE
-							&& xDestination < (5 * SystemConstants.TILE + Math.round(w1/2))
-							&& xDestination > (5 * SystemConstants.TILE - Math.round(w1/2))){
+					xDestination = curX;
+					if(xDestination <= (5*SystemConstants.TILE + Math.round(w1/2) + RESTRICTION_TOLERANCE)
+							&& xDestination >= (5 * SystemConstants.TILE - Math.round(w1/2) - RESTRICTION_TOLERANCE)
+							&& yDestination <= 9 * SystemConstants.TILE + 1*SystemConstants.TILE + RESTRICTION_TOLERANCE
+							&& yDestination >= 9* SystemConstants.TILE - (w2 - 1*SystemConstants.TILE) -RESTRICTION_TOLERANCE){
+						RConsole.println("Destination x in defender zone (going left)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						cantY = true;
 						break;
 					}
 					else{
+						RConsole.println("No problem (going left)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
+						if(doneX) {
+							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+						}
+						doneX = false;
 						obstacle = !travelTo(curX, yDestination);
 					}
 				}
@@ -330,24 +406,115 @@ public class Navigation {
 				curX = coords.getX();
 				curY = coords.getY();
 
-			} while (Math.abs(curY - y) > DISTANCE_TOLERANCE && !obstacle);
+			} while (true/*Math.abs(curY - y) > DISTANCE_TOLERANCE && !obstacle*/);
 			
 			if(obstacle){
 				avoidObstacle(x, y);
 			}
 
-			localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+			//localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 			
 			// if(obstacle ) call obstacle avoidance
 			// else if destination reached break
 			// else, i.e, obstacle in destination: return -1;
 			robot.stop();
 			
+			// If X is stop by a constraint and Y is happy, then change Y
+			if (cantX && doneY)
+			{
+				RConsole.println("Move in Y");
+				if(specialY > curY){
+					RConsole.println("specialY > curY");
+					// replace this with obstacle checking
+					if(false){
+						cantY = true;
+						if (specialY == -1*SystemConstants.TILE) {
+							specialY = 11*SystemConstants.TILE;
+						}
+						else {
+							specialY = -1*SystemConstants.TILE;
+						}
+					}
+					else{
+						cantX = false;
+						obstacle = !travelTo(curX, curY + 1*SystemConstants.TILE);
+					}
+				}
+				else{
+					RConsole.println("specialY < curY");
+					// replace this with obstacle checking
+					if(false){
+						cantY = true;
+						if (specialY == -1*SystemConstants.TILE) {
+							specialY = 11*SystemConstants.TILE;
+						}
+						else {
+							specialY = -1*SystemConstants.TILE;
+						}
+					}
+					else{
+						cantX = false;
+						RConsole.println("Moving in Y");
+						obstacle = !travelTo(curX, curY - 1*SystemConstants.TILE);
+					}
+					
+				}
+			}
+			else if (doneX && cantY) {
+
+				if(specialX > curX){
+					// replace this with obstacle checking
+					if(false){
+						cantX = true;
+						if (specialX == -1*SystemConstants.TILE) {
+							specialX = 11*SystemConstants.TILE;
+						}
+						else {
+							specialX = -1*SystemConstants.TILE;
+						}
+					}
+					else{
+						cantY = false;
+						obstacle = !travelTo(curX, curY + 1*SystemConstants.TILE);
+					}
+				}
+				else{
+					// replace this with obstacle checking
+					if(false){
+						cantX = true;
+						if (specialX == -1*SystemConstants.TILE) {
+							specialX = 11*SystemConstants.TILE;
+						}
+						else {
+							specialX = -1*SystemConstants.TILE;
+						}
+					}
+					else{
+						cantY = false;
+						obstacle = !travelTo(curX, curY - 1*SystemConstants.TILE);
+					}
+					
+				}
 			
-			if(Math.abs(curX - x) < DISTANCE_TOLERANCE && Math.abs(curY - y) < DISTANCE_TOLERANCE){
+			}
+			else if (cantX && cantY) {
+				// Not yet determined but should be extrmely rare
+			}
+			else {
+				cantX = false;
+				cantY = false;
+			}
+
+			
+			
+			/*if(Math.abs(curX - x) < DISTANCE_TOLERANCE && Math.abs(curY - y) < DISTANCE_TOLERANCE){
+				destinationReached = true;
+			}*/
+			if (doneX && doneY) {
+				localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 				destinationReached = true;
 			}
-			
+		 	
 			
 		}
 
