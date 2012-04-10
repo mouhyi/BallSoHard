@@ -16,6 +16,7 @@ public class Navigation {
 	public ObstacleDetection us;
 	OdoCorrection snapper;
 	Localization localizer;
+	private double w1, w2;
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
 	private static final double DISTANCE_TOLERANCE = 3; // in cm
@@ -31,12 +32,14 @@ public class Navigation {
 	 * @author Mouhyi
 	 */
 	public Navigation(Odometer odo, Robot robot, ObstacleDetection us,
-			OdoCorrection snapper, Localization localizer) {
+			OdoCorrection snapper, Localization localizer, int w1, int w2) {
 		this.odo = odo;
 		this.robot = robot;
 		this.us = us;
 		this.snapper = snapper;
 		this.localizer = localizer;
+		this.w1 = w1*SystemConstants.TILE;
+		this.w2 = w2*SystemConstants.TILE;
 	}
 
 	/**
@@ -106,7 +109,7 @@ public class Navigation {
 		while (true) {
 			coords = odo.getCoordinates();
 			
-			RConsole.println(""+us.getDistance());
+	//		RConsole.println(""+us.getDistance());
 			
 			/*
 			 * Added a condition to only check one direction to prevent the robot from
@@ -204,15 +207,22 @@ public class Navigation {
 		Coordinates coords;
 		double curX, curY;
 		boolean obstacle = false;
+		boolean destinationReached = false;
 		int xDiff, yDiff;
 
 	//	RConsole.println("Going to");
-		while (true) {
-
+		while (!destinationReached) {
+			
+			double xDestination = 0;
+			double yDestination = 9 * SystemConstants.TILE;
+			
 			do {
 				coords = odo.getCoordinates();
 				curX = coords.getX();
 				curY = coords.getY();
+				
+				RConsole.println("Destination x: "+x);
+				RConsole.println("Current x: "+curX);
 				
 				/* Number of tiles to move
 				 * Added absolute value in case destination < current location
@@ -224,14 +234,34 @@ public class Navigation {
 				RConsole.println("xdiff" + xDiff);
 
 				/*
-				 * Added case for when the destination is less than the current location
+				 * Added condition to prevent entering defender zone
 				 * @author Ryan
 				 */
 				if(x > curX){
-					obstacle = !travelTo(x - xDiff * SystemConstants.TILE, curY);
+					xDestination = x - xDiff * SystemConstants.TILE;
+					if(xDestination < (5*SystemConstants.TILE + Math.round(w1/2))
+							&& xDestination > (5 * SystemConstants.TILE - Math.round(w1/2))
+							&& yDestination > 6 * SystemConstants.TILE
+							&& yDestination < 10* SystemConstants.TILE){
+						RConsole.println("Destination x in defender zone");
+						break;
+					}
+					else{
+						obstacle = !travelTo(xDestination, curY);
+					}
 				}
 				else{
-					obstacle = !travelTo(x + xDiff * SystemConstants.TILE, curY);
+					xDestination = x + xDiff * SystemConstants.TILE;
+					if(xDestination < (5*SystemConstants.TILE + Math.round(w1/2))
+							&& xDestination > (5 *SystemConstants.TILE- Math.round(w1/2))
+							&& yDestination > 6 * SystemConstants.TILE
+							&& yDestination < 10* SystemConstants.TILE){
+						break;
+					}
+					else{
+						obstacle = !travelTo(xDestination, curY);
+					}
+					
 				}
 				RConsole.println("Traveled one tile horizontally");
 
@@ -257,20 +287,42 @@ public class Navigation {
 				 * Added absolute value
 				 * @author Ryan
 				 */				
+				
+				RConsole.println("Destination y: "+y);
+				RConsole.println("Current y: "+curY);
+				
 				yDiff = (int) Math.round(Math.abs(y - curY) / SystemConstants.TILE) - 1;
 				if(yDiff==-1) break;
 				
 				RConsole.println("ydiff" + yDiff);
 
-				/*
+				/**
 				 * Added conditions
 				 * @author Ryan
 				 */
 				if(y > curY){
-					obstacle = !travelTo(curX, y - yDiff * SystemConstants.TILE);
+					yDestination = y - yDiff * SystemConstants.TILE;
+					if(yDestination < 10 * SystemConstants.TILE 
+							&& yDestination > 6 * SystemConstants.TILE
+							&& xDestination < (5 * SystemConstants.TILE + Math.round(w1/2))
+							&& xDestination > (5 * SystemConstants.TILE- Math.round(w1/2))){
+						break;
+					}
+					else{
+						obstacle = !travelTo(curX, yDestination);
+					}
 				}
 				else{
-					obstacle = !travelTo(curX, y + yDiff * SystemConstants.TILE);
+					yDestination = y + yDiff * SystemConstants.TILE;
+					if(yDestination < 10 * SystemConstants.TILE 
+							&& yDestination > 6 * SystemConstants.TILE
+							&& xDestination < (5 * SystemConstants.TILE + Math.round(w1/2))
+							&& xDestination > (5 * SystemConstants.TILE - Math.round(w1/2))){
+						break;
+					}
+					else{
+						obstacle = !travelTo(curX, yDestination);
+					}
 				}
 				
 				// update position
@@ -292,7 +344,9 @@ public class Navigation {
 			robot.stop();
 			
 			
-			break;
+			if(Math.abs(curX - x) < DISTANCE_TOLERANCE && Math.abs(curY - y) < DISTANCE_TOLERANCE){
+				destinationReached = true;
+			}
 			
 			
 		}
@@ -317,6 +371,9 @@ public void getBall(double x, double y, int orientation){
 		 */
 				
 		double startX = x, startY = y;
+		
+		RConsole.println("Dispenser x: "+x);
+		RConsole.println("Dispenser y: "+y);
 				
 		// North
 		if (orientation == 1) {
@@ -343,6 +400,7 @@ public void getBall(double x, double y, int orientation){
 		}
 		
 		//Move to one node away from the dispenser
+		RConsole.println("GoTo: "+startX+", "+startY);
 		GoTo(startX, startY);
 		
 		//Align the back of the robot with the button

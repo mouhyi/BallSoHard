@@ -161,7 +161,7 @@ public class Localization {
 		boolean second = false;
 		while (first) // Checks for rising edge
 		{
-			RConsole.println("" + uspL.getDistance());
+	//		RConsole.println("" + uspL.getDistance());
 			// Reads wall
 			if (uspL.getDistance() < 30 && uspR.getDistance() < 30) {
 				Wall = Wall + 1;
@@ -262,7 +262,7 @@ public class Localization {
 		// Keep making the wheel that hasn't seen a line go forward until it
 		// sees a line
 		double currentAngle = odo.getCoordinates().getTheta();
-		RConsole.print("" + currentAngle);
+	//	RConsole.print("" + currentAngle);
 		if (rightSeen) {
 			robot.advanceLeft(75);
 			robot.advanceLeft(75);

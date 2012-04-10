@@ -21,7 +21,7 @@ public class Controller {
 	public static void main(String[] args) {
 
 	//	RConsole.openBluetooth((30000));
-	//	RConsole.openUSB(30000);
+		RConsole.openUSB(30000);
 		
 		Button.waitForPress(); 
 		
@@ -46,7 +46,7 @@ public class Controller {
 			// print out the transmission information
 			conn.printTransmission();
 		}
-
+/*
 		// Code for Bluetooth transmission to slave
 		RemoteDevice btrd = Bluetooth.getKnownDevice("T10S");
 		if (btrd == null) {
@@ -65,7 +65,7 @@ public class Controller {
 		}
 
 		DataOutputStream dos = connection.openDataOutputStream();
-
+*/
 		Robot robot = new Robot(SystemConstants.leftMotor,
 				SystemConstants.rightMotor);
 		Odometer odo = new Odometer(robot);
@@ -82,7 +82,7 @@ public class Controller {
 		Localization localizer = new Localization(odo, robot, new LightSensor(SensorPort.S1), new LightSensor(SensorPort.S4),
 				new USPoller(new UltrasonicSensor(SensorPort.S2)), new USPoller(new UltrasonicSensor(SensorPort.S3)));
 		
-		Navigation nav = new Navigation(odo, robot, us, snapper, localizer);
+		Navigation nav = new Navigation(odo, robot, us, snapper, localizer, w1, w2);
 
 		Printer lcd = new Printer(odo);
 		
@@ -102,20 +102,26 @@ public class Controller {
 			switch(startCorner){
 			case 1:
 				nav.GoTo(2*SystemConstants.TILE, 1*SystemConstants.TILE);
+				break;
 			case 2:
 				nav.GoTo(8*SystemConstants.TILE, 1*SystemConstants.TILE);
+				break;
 			case 3: 
 				nav.GoTo(8*SystemConstants.TILE, 9*SystemConstants.TILE);
+				break;
 			case 4:
 				nav.GoTo(2*SystemConstants.TILE, 9*SystemConstants.TILE);
+				break;
 			}
-		
+	
+	//		odo.setCoordinates(8*SystemConstants.TILE, 1, 90);
+			
 			//Navigate to ball dispenser and press button
 			nav.getBall(bx*SystemConstants.TILE, by*SystemConstants.TILE, bsigma);
 		
 			//Travel to shooting location
 			nav.GoTo(2*SystemConstants.TILE,6*SystemConstants.TILE);
-		
+/*		
 			//Shoot ball
 			try {
 				dos.writeInt(1);
@@ -127,7 +133,7 @@ public class Controller {
 				Thread.sleep(30000);
 			} catch (InterruptedException e) {
 			}
-			
+		
 			//Navigate to ball dispenser and press button
 			nav.getBall(bx*SystemConstants.TILE, by*SystemConstants.TILE, bsigma);
 			
@@ -145,7 +151,7 @@ public class Controller {
 				Thread.sleep(30000);
 			} catch (InterruptedException e) {
 			}
-			
+*/			
 			RConsole.println("END Conroller ");
 		
 			Button.waitForPress();

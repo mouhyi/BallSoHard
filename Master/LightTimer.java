@@ -35,7 +35,7 @@ public class LightTimer implements TimerListener
 		}
 		
 			lightValue[maxIndex]=sensor.getNormalizedLightValue();
-			RConsole.println("light = "+ lightValue[maxIndex]);
+	//		RConsole.println("light = "+ lightValue[maxIndex]);
 			/*
 			if(this==left){
 				RConsole.println(String.valueOf(lightValue[maxIndex]));
@@ -50,7 +50,7 @@ public class LightTimer implements TimerListener
 			int diffAB = lightValue[0]-lightValue[1];
 			int diffCD = lightValue[2]-lightValue[3];
 			int totalDiff = diffAB-diffCD;
-			RConsole.println("totalDiff = "+ totalDiff);
+	//		RConsole.println("totalDiff = "+ totalDiff);
 			
 			// The total diff will be incorrect at first since the array is inialized at 0.
 			if(totalDiff >= DETECTION_THRESHOLD && totalDiff <= 100){
