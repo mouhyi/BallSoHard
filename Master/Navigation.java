@@ -13,7 +13,7 @@ public class Navigation {
 
 	private Odometer odo;
 	private Robot robot;
-	private ObstacleDetection us;
+	public ObstacleDetection us;
 	OdoCorrection snapper;
 	Localization localizer;
 
@@ -78,12 +78,26 @@ public class Navigation {
 		/*
 		 * Uncommented this to work on obstacle avoidance
 		 * @author Ryan
-		 */
-		
-		/*if ( us.getDistance() < ObstacleDist ){ 
-			RConsole.println("Obstacle");
-			return false; 
-		}*/
+		 
+		int distance = us.getDistance();
+		if(distance == 4){
+			distance = 255;
+		}
+
+		if (distance < ObstacleDist) {
+			
+			//Don't detect obstacle if destination is beside a wall
+			if(odo.getDirection() == 0 && x > 8*SystemConstants.TILE){}
+			else if(odo.getDirection() == 1 && y > 10*SystemConstants.TILE){}
+			else if(odo.getDirection() == 2 && x < 1*SystemConstants.TILE){}
+			else if(odo.getDirection() == 3 && y < 1*SystemConstants.TILE){}
+			else{
+				RConsole.println("Obstacle");
+				return false;
+			}
+			
+		}
+		*/
 		
 	//	RConsole.println("TravelTo: Advance");
 		
@@ -91,6 +105,8 @@ public class Navigation {
 
 		while (true) {
 			coords = odo.getCoordinates();
+			
+			RConsole.println(""+us.getDistance());
 			
 			/*
 			 * Added a condition to only check one direction to prevent the robot from
@@ -232,7 +248,7 @@ public class Navigation {
 				avoidObstacle(x, y);
 			}
 			
-			localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
+	//		localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 
 			do {
 				obstacle = false;
@@ -302,22 +318,22 @@ public void getBall(double x, double y, int orientation){
 				
 		double startX = x, startY = y;
 				
-		//North
-		if(orientation == 1){
-			startY = y+SystemConstants.TILE;
+		// North
+		if (orientation == 1) {
+			startY = y + 2*SystemConstants.TILE;
 		}
-		//East
-		else if(orientation == 2){
-			startX = x+SystemConstants.TILE;
+		// East
+		else if (orientation == 2) {
+			startX = x + 2*SystemConstants.TILE;
 			orientation = 0;
 		}
-		//South
-		else if(orientation == 3){
-			startY = y-SystemConstants.TILE;
+		// South
+		else if (orientation == 3) {
+			startY = y - 2*SystemConstants.TILE;
 		}
-		//West
-		else{
-			startX = x-SystemConstants.TILE;
+		// West
+		else {
+			startX = x - 2*SystemConstants.TILE;
 			orientation = 2;
 		}
 		

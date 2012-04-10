@@ -1,6 +1,7 @@
 package Master;
 
 import lejos.nxt.UltrasonicSensor;
+import lejos.nxt.comm.RConsole;
 import lejos.util.Timer;
 import lejos.util.TimerListener;
 
@@ -14,8 +15,9 @@ import lejos.util.TimerListener;
 public class USPoller extends Thread{
 
 	private int[] usDistances = new int[5];
-	private UltrasonicSensor us;
-	private int median;
+	public UltrasonicSensor us;
+	public int median;
+	private Object lock;
 
 	/**
 	 * Constructor
@@ -25,6 +27,7 @@ public class USPoller extends Thread{
 	public USPoller (UltrasonicSensor us) {
 		this.us = us;
 		this.start();
+		lock = new Object();
 	}
 	
 	/**
@@ -40,15 +43,19 @@ public class USPoller extends Thread{
 		
 		while(true){
 			//Inserts sensor readings into an array and shifts them for every ping
-			for(i=0; i<maxIndex; i++){
-				usDistances[i]=usDistances[i+1];
-			}
-			usDistances[maxIndex]=us.getDistance();
+	//		for(i=0; i<maxIndex; i++){
+	//			usDistances[i]=usDistances[i+1];
+	//		}
+			
+	//		usDistances[maxIndex]=us.getDistance();
 		
 			//Sorts data and returns median
-			filter(usDistances, 0);
+	//		filter(usDistances, 0);
 		
-			median = usDistances[middle];
+			synchronized(lock){
+				median = us.getDistance();
+	//			RConsole.println(String.valueOf(this.getDistance()));
+			}		
 		
 			try{
 				Thread.sleep(50);
@@ -73,11 +80,8 @@ public class USPoller extends Thread{
 		}
 	}
 	
-	/**
-	 * Returns the minimum of both filtered ultrasonic sensor readings
-	 * @author Ryan
-	 */
-	public int getDistance(){
+	
+	public synchronized int getDistance(){
 		return median;
 		
 	}

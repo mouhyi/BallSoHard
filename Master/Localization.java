@@ -97,10 +97,10 @@ public class Localization {
 		if (x < xAxis && y < yAxis) {
 			// Sets up for light localization
 			robot.rotateAxis(0 - theta, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(theta - 90, 5);
 		}
@@ -108,10 +108,10 @@ public class Localization {
 		else if (x > xAxis && y < yAxis){
 			// Sets up for light localization
 			robot.rotateAxis(90 - theta, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(theta - 180, 5);
 		}
@@ -119,10 +119,10 @@ public class Localization {
 		else if (x > xAxis && y > yAxis){
 			// Sets up for light localization
 			robot.rotateAxis(180 - theta, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(theta - 270, 5);
 		}
@@ -130,10 +130,10 @@ public class Localization {
 		else if (x < xAxis && y > yAxis){
 			// Sets up for light localization
 			robot.rotateAxis(270 - theta, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(90, 5);
-			robot.goForward(-10, 10);
+			robot.goForward(-7, 5);
 			this.doLightLocalization();
 			robot.rotateAxis(theta - 0, 5);
 		}
@@ -161,7 +161,7 @@ public class Localization {
 		boolean second = false;
 		while (first) // Checks for rising edge
 		{
-
+			RConsole.println("" + uspL.getDistance());
 			// Reads wall
 			if (uspL.getDistance() < 30 && uspR.getDistance() < 30) {
 				Wall = Wall + 1;
@@ -273,6 +273,10 @@ public class Localization {
 						  lineMissed = true;
 					  }
 					  robot.advanceLeft(-75);robot.advanceLeft(-75); 
+					  try{
+						  Thread.sleep(3000);
+					  }catch(Exception e){}
+					  leftSeen = false;
 				 } else { robot.advanceLeft(75);robot.advanceLeft(75); }
 				
 				// robot.advanceLeft(25);
@@ -296,6 +300,10 @@ public class Localization {
 						  lineMissed = true;
 					  }
 					  robot.advanceRight(-75);robot.advanceRight(-75); 
+					  try{
+						  Thread.sleep(3000);
+					  }catch(Exception e){}
+					  rightSeen = false;
 				  } else { robot.advanceRight(75);robot.advanceRight(75);
 				  }
 				 

@@ -102,14 +102,25 @@ public class NavigationRoundThree {
 		 * @author Ryan
 		 */
 
-		int sensorDist = us.getDistance();
-		RConsole.println("Obstacle distance: "+sensorDist);
-
-		if (sensorDist < ObstacleDist) {
-			RConsole.println("Obstacle");
-			return false;
+/*		int distance = us.getDistance();
+		if(distance == 4){
+			distance = 255;
 		}
 
+		if (distance < ObstacleDist) {
+			
+			//Don't detect obstacle if destination is beside a wall
+			if(odo.getDirection() == 0 && x > 8*SystemConstants.TILE){}
+			else if(odo.getDirection() == 1 && y > 10*SystemConstants.TILE){}
+			else if(odo.getDirection() == 2 && x < 1*SystemConstants.TILE){}
+			else if(odo.getDirection() == 3 && y < 1*SystemConstants.TILE){}
+			else{
+				RConsole.println("Obstacle");
+				return false;
+			}
+			
+		}
+*/ 
 		// RConsole.println("TravelTo: Advance");
 
 		// robot.advance(SystemConstants.FORWARD_SPEED);
@@ -338,20 +349,20 @@ public class NavigationRoundThree {
 
 		// North
 		if (orientation == 1) {
-			startY = y + SystemConstants.TILE;
+			startY = y + 2*SystemConstants.TILE;
 		}
 		// East
 		else if (orientation == 2) {
-			startX = x + SystemConstants.TILE;
+			startX = x + 2*SystemConstants.TILE;
 			orientation = 0;
 		}
 		// South
 		else if (orientation == 3) {
-			startY = y - SystemConstants.TILE;
+			startY = y - 2*SystemConstants.TILE;
 		}
 		// West
 		else {
-			startX = x - SystemConstants.TILE;
+			startX = x - 2*SystemConstants.TILE;
 			orientation = 2;
 		}
 
@@ -495,7 +506,7 @@ public class NavigationRoundThree {
 			} else {
 				blockedX = (int) (coords.getX() / SystemConstants.TILE) + 2;
 			}
-			blockedY = (int) coords.getY();
+			blockedY = (int) (coords.getY() / SystemConstants.TILE);
 
 			RConsole.println("BlockedX: " + blockedX);
 			RConsole.println("BlockedY: " + blockedY);
@@ -662,7 +673,40 @@ public class NavigationRoundThree {
 			}
 			blockedX = (int) (coords.getX()/SystemConstants.TILE);
 			map[blockedX][blockedY] = true;
+			
+			//Check east for obstacle
+			if(!eastEdge){
+				if(map[currentX+1][currentY] == false){
+					turnLeft();
+					
+					if(us.getDistance() > NearObstacle){
+						
+						//No immediate obstacle, go to destination
+						navCorrect();
+						GoTo(x,y);
+					} else{
+						map[currentX+1][currentY] = true;
+					}
+				}
+			}
+			
+			//Check west for obstacle
+			else if(!westEdge){
+				if(map[currentX-1][currentY] == false){
+					turnRight();
+					
+					if(us.getDistance() > NearObstacle){
+						navCorrect();
+						GoTo(x,y);
+					} else{
+						map[currentX-1][currentY] = true;
+					}
+				}
+			}
 		}
+		
+					
+		
 
 		// Detect obstacle
 		// Place obstacle on map

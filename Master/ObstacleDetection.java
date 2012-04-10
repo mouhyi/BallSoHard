@@ -18,8 +18,8 @@ public class ObstacleDetection
 	private boolean obstacleDetected;
 	private Object lock;
 	
-	private USPoller left;
-	private USPoller right;
+	public USPoller left;
+	public USPoller right;
 
 	/**
 	 * Constructor
