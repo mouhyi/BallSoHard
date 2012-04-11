@@ -16,6 +16,8 @@ public class SlaveCont {
 
 	public static void main(String[] args) {
 
+		LCD.drawString("Press to start.", 0, 0);
+		
 		Button.waitForPress();
 
 		int command = 0;
@@ -41,9 +43,12 @@ public class SlaveCont {
 		if (command == 1) {
 			off.run();
 			LCD.clear();
+			LCD.drawString("Running OFFENSE.", 0, 0);
 			command = 0;
 		} else if (command == 2) {
 			def.run();
+			LCD.clear();
+			LCD.drawString("Running DEFENSE.", 0, 0);
 		}
 		
 		// Try to receive another command if trying to shoot again
@@ -55,6 +60,7 @@ public class SlaveCont {
 		}
 		if (command == 1) {
 			off.run();
+			LCD.drawString("Running OFFENSE.", 0, 0);
 			LCD.clear();
 		}
 
