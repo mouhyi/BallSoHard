@@ -6,7 +6,7 @@ import lejos.nxt.NXTRegulatedMotor;
  * This class allows the robot to block an opponent's balls by deploying a
  * mechanical defense mechanism.
  * 
- * @author Anthony
+ * @author Anthony, Ze
  * 
  */
 
@@ -14,6 +14,8 @@ public class Defense implements Runnable {
 
 	private NXTRegulatedMotor defMotor;
 
+	private final float DEF_SPEED = 75;
+	
 	/**
 	 * Constructor for Defense
 	 * 
@@ -27,11 +29,12 @@ public class Defense implements Runnable {
 	 * This method implements run method of the Runnable interface. Deploys the
 	 * mechanical defense mechanism.
 	 * 
-	 * @author Anthony
+	 * @author Anthony, Ze
 	 */
 
 	public void run() {
 		// Rotate defensive motor 180 degrees to raise the defense mechanism
+		defMotor.setSpeed(DEF_SPEED);
 		defMotor.rotate(180);
 	}
 
