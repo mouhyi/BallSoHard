@@ -16,22 +16,22 @@ import bluetooth.*;
  * 
  * @author Mouhyi
  */
-public class Controller {
+public class ControllerR3 {
 
 	public static void main(String[] args) {
 
-//		// for now code
-//				int startCorner = 3;
-//				int job = 2;
+		// for now code
+//				int startCorner = 1;
+//				int job = 1;
 //				int w1 = 4;
 //				int w2 = 4;
 //				
-//				int bx = 11;
-//				int by = 9;
-//				int bsigma = 4;
+//				int bx = -1;
+//				int by = 10;
+//				int bsigma = 2;
 	//	RConsole.openBluetooth((30000));
 	//	RConsole.openUSB(30000);
-		//RConsole.open();
+	//	RConsole.open();
 		Button.waitForPress(); 
 		
 		BluetoothConnection conn = new BluetoothConnection();
@@ -52,7 +52,7 @@ public class Controller {
 			by = t.by;
 			bsigma = t.bsigma;
 
-			// print out the transmission information
+//			// print out the transmission information
 			conn.printTransmission();
 		}
 		
@@ -94,6 +94,8 @@ public class Controller {
 
 		Printer lcd = new Printer(odo);
 		
+		//localizer.MidLocalization(odo.getCoordinates().getX(), odo.getCoordinates().getY(), 0);
+		
 		try {
 			Thread.sleep(3000);
 		} catch (Exception e) {
@@ -102,50 +104,45 @@ public class Controller {
 		int startCorner = corner.getId();
 		int job = role.getId();
 
+
 		// Foward
 		if (job == 1) {
-			Navigation nav = new Navigation(odo, robot, us, snapper, localizer,	w1, w2);
+			NavigationRoundThree nav = new NavigationRoundThree(odo, robot, us, snapper, localizer,	w1, w2, new USPoller(SystemConstants.USL), new USPoller(SystemConstants.USR));
 			// Localize
 			
 			localizer.doLocalization(startCorner);
-////			odo.setCoordinates(304.8, 304.8, 180, new boolean[] { true, true,
-////					true });
+
 
 			switch (startCorner) {
 			case 1:
 				nav.GoTo(1 * SystemConstants.TILE, 1 * SystemConstants.TILE);
 				break;
-																																																																																																																																																																														case 2:
-				nav.GoTo(8 * SystemConstants.TILE, 1 * SystemConstants.TILE);
+			case 2:
+				nav.GoTo(9 * SystemConstants.TILE, 1 * SystemConstants.TILE);
 				break;
 			case 3:
-				nav.GoTo(8 * SystemConstants.TILE, 9 * SystemConstants.TILE);
+				nav.GoTo(9 * SystemConstants.TILE, 9 * SystemConstants.TILE);
 				break;
 			case 4:
 				nav.GoTo(1 * SystemConstants.TILE, 9 * SystemConstants.TILE);
 				break;
 			}
 
-			// odo.setCoordinates(8*SystemConstants.TILE, 1, 90);
+
 
 			// Navigate to ball dispenser and press button
-			nav.getBall(bx * SystemConstants.TILE, by * SystemConstants.TILE,
-					bsigma);
+			nav.getBall(bx * SystemConstants.TILE, by * SystemConstants.TILE, bsigma);
 
 			// Travel to shooting location
 			if(bx < 5){
 				nav.GoTo(2 * SystemConstants.TILE, 9 * SystemConstants.TILE);
-				//Localize before shooting
-				localizer.MidLocalization(odo.getCoordinates().getX(), odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 				nav.turnTo(0);
-				robot.goForward(6.5, 5);	
+				robot.goForward(7, 5);	
 			}
 			else{
 				nav.GoTo(8*SystemConstants.TILE,9*SystemConstants.TILE);
-				//Localize before shooting
-				localizer.MidLocalization(odo.getCoordinates().getX(), odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 				nav.turnTo(180);
-				robot.goForward(6.5,5);
+				robot.goForward(7,5);
 			}
 			
 			
@@ -155,28 +152,20 @@ public class Controller {
 			 
 			try { Thread.sleep(30000); } catch (InterruptedException e) { }
 			 
-			//Return to gridline
-			robot.goForward(-6.5,5);
-			
 			//Navigate to ball dispenser and press button
+			robot.goForward(-5,5);
 			nav.getBall(bx*SystemConstants.TILE, by*SystemConstants.TILE,bsigma);
-						
+			
 			//Travel to shooting location
 			if(bx < 5){
 				nav.GoTo(2 * SystemConstants.TILE, 9 * SystemConstants.TILE);
-				
-				//Localize before shooting
-				localizer.MidLocalization(odo.getCoordinates().getX(), odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 				nav.turnTo(0);
-				robot.goForward(6.5, 5);	
+				robot.goForward(7, 5);	
 			}
 			else{
 				nav.GoTo(8*SystemConstants.TILE,9*SystemConstants.TILE);
-				
-				//Localize before shooting
-				localizer.MidLocalization(odo.getCoordinates().getX(), odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 				nav.turnTo(180);
-				robot.goForward(6.5,5);
+				robot.goForward(7,5);
 			}
 			 
 			//Shoot ball 
@@ -186,40 +175,6 @@ public class Controller {
 			try { Thread.sleep(30000); } catch (InterruptedException e) { }
 			
 		} 
-		
-		// Defender
-		else if (job == 2) {
-			Navigation nav = new Navigation(odo, robot, us, snapper, localizer);
-			
-			localizer.doLocalization(startCorner);
-
-			switch (startCorner) {
-			case 1:
-				nav.GoTo(1 * SystemConstants.TILE, 1 * SystemConstants.TILE);
-				break;
-			case 2:
-				nav.GoTo(8 * SystemConstants.TILE, 1 * SystemConstants.TILE);
-				break;
-			case 3:
-				nav.GoTo(8 * SystemConstants.TILE, 9 * SystemConstants.TILE);
-				break;
-			case 4:
-				nav.GoTo(1 * SystemConstants.TILE, 9 * SystemConstants.TILE);
-				break;
-			}
-			nav.GoTo(5 * SystemConstants.TILE, 7 * SystemConstants.TILE);
-			nav.turnTo(270);
-			try {
-				dos.writeInt(2);
-				dos.flush();
-			} catch (IOException e) {
-			}
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-			}
-			robot.goForward(-25, 5);
-		}
 		RConsole.println("END Conroller ");
 
 		Sound.beepSequenceUp();

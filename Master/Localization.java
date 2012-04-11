@@ -274,10 +274,18 @@ public class Localization {
 					  }
 					  robot.advanceLeft(-75);robot.advanceLeft(-75); 
 					  try{
-						  Thread.sleep(3000);
+						  Thread.sleep(3500);
 					  }catch(Exception e){}
 					  leftSeen = false;
-				 } else { robot.advanceLeft(75);robot.advanceLeft(75); }
+				 } 
+				  else if(currentAngle - odo.getCoordinates().getTheta() > 50){
+					  robot.advanceLeft(-75);robot.advanceLeft(-75);
+					  try{
+						  Thread.sleep(3500);
+					  }catch(Exception e){}
+				  }
+				  else { robot.advanceLeft(75);robot.advanceLeft(75); 
+				  }
 				
 				// robot.advanceLeft(25);
 				if (leftLight.lineDetected()) {
@@ -301,10 +309,18 @@ public class Localization {
 					  }
 					  robot.advanceRight(-75);robot.advanceRight(-75); 
 					  try{
-						  Thread.sleep(3000);
+						  Thread.sleep(3500);
 					  }catch(Exception e){}
 					  rightSeen = false;
-				  } else { robot.advanceRight(75);robot.advanceRight(75);
+				  } 
+				  else if(currentAngle - odo.getCoordinates().getTheta() > 50){
+					  robot.advanceLeft(-75);robot.advanceLeft(-75);
+					  try{
+						  Thread.sleep(3500);
+					  }catch(Exception e){}
+				  }
+				  else {
+					  robot.advanceRight(75);robot.advanceRight(75);
 				  }
 				 
 				// robot.advanceRight(25);

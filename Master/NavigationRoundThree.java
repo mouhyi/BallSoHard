@@ -21,6 +21,8 @@ public class NavigationRoundThree {
 
 	private static final double ROTATION_TOLERANCE = 0.5; // in Deg
 	private static final double DISTANCE_TOLERANCE = 3; // in cm
+	private int travelCount = 0;
+	private static final int OBSTACLE_THRESHOLD = 45;
 	
 	/*
 	 *CHANGED: Rotation tolerance from 10-5
@@ -28,7 +30,7 @@ public class NavigationRoundThree {
 	private static final double RESTRICTION_TOLERANCE = 5;
 
 	/** minimum distance necessary for the robot to move forward */
-	public static final int ObstacleDist = 50;
+	
 
 	/**
 	 * Constructor for Attacker
@@ -86,6 +88,7 @@ public class NavigationRoundThree {
 		
 		robot.stop();
 
+		travelCount = travelCount+1;
 		coords = odo.getCoordinates();
 		destAngle = Math.atan2(y - coords.getY(), x - coords.getX());
 		destAngle = Odometer.convertToDeg(destAngle);
@@ -182,7 +185,9 @@ public class NavigationRoundThree {
 
 		// RConsole.println("TravelTo: advance");
 	//	RConsole.println("TravelTo ARRIVEDto: x=" + x + ",  y=" + y);
-
+		if(travelCount % 4 == 0){
+			localizer.MidLocalization(odo.getCoordinates().getX(), odo.getCoordinates().getY(), odo.getCoordinates().getTheta()); 
+		}
 		return true;
 
 	}
@@ -288,6 +293,7 @@ public class NavigationRoundThree {
 				 * Added condition to prevent entering defender zone
 				 * @author Ryan
 				 */
+				
 				if(x > curX){
 					xDestination = x - xDiff * SystemConstants.TILE;
 					yDestination = curY;
@@ -301,11 +307,10 @@ public class NavigationRoundThree {
 					}
 					else{
 						RConsole.println("No problem (going right)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
-						if(doneY) {
-							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
-						}
 						turnTo(Odometer.convertToDeg(Math.atan2(yDestination - coords.getY(), xDestination - coords.getX())));
-						if (usL.getDistance() < 50 || usR.getDistance() < 50) {
+						RConsole.println("usL.getDistance() = " + usL.getDistance() + "\nusR.getDistance()" + usR.getDistance());
+						if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+							|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 							cantX = true;
 							break;
 						}
@@ -326,11 +331,10 @@ public class NavigationRoundThree {
 					}
 					else{
 						RConsole.println("No problem (going left)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
-						if(doneY) {
-							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
-						}
 						turnTo(Odometer.convertToDeg(Math.atan2(yDestination - coords.getY(), xDestination - coords.getX())));
-						if (usL.getDistance() < 50 || usR.getDistance() < 50) {
+						RConsole.println("usL.getDistance() = " + usL.getDistance() + "\nusR.getDistance()" + usR.getDistance());
+						if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+								|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 							cantX = true;
 							break;
 						}
@@ -353,10 +357,6 @@ public class NavigationRoundThree {
 			if(obstacle){
 				avoidObstacle(x, y);
 			}
-			
-			/*if (!cantX && !cantY) {
-				localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
-			}*/
 
 			do {
 				obstacle = false;
@@ -391,11 +391,10 @@ public class NavigationRoundThree {
 					}
 					else{
 						RConsole.println("No problem (going right)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
-						if(doneX) {
-							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
-						}
 						turnTo(Odometer.convertToDeg(Math.atan2(yDestination - coords.getY(), xDestination - coords.getX())));
-						if (usL.getDistance() < 50 || usR.getDistance() < 50) {
+						RConsole.println("usL.getDistance() = " + usL.getDistance() + "\nusR.getDistance()" + usR.getDistance());
+						if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+								|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 							cantY = true;
 							break;
 						}
@@ -416,11 +415,10 @@ public class NavigationRoundThree {
 					}
 					else{
 						RConsole.println("No problem (going left)\nxDestination: " + xDestination + "\nyDestination: " + yDestination);
-						if(doneX) {
-							localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
-						}
 						turnTo(Odometer.convertToDeg(Math.atan2(yDestination - coords.getY(), xDestination - coords.getX())));
-						if (usL.getDistance() < 50 || usR.getDistance() < 50) {
+						RConsole.println("usL.getDistance() = " + usL.getDistance() + "\nusR.getDistance()" + usR.getDistance());
+						if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+								|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 							cantY = true;
 							break;
 						}
@@ -455,7 +453,7 @@ public class NavigationRoundThree {
 					turnTo(Odometer.convertToDeg(Math.atan2(curY + 1*SystemConstants.TILE - coords.getY(), curX - coords.getX())));
 					RConsole.println("specialY > curY");
 					// replace this with obstacle checking
-					if(usL.getDistance() < 50 || usR.getDistance() < 50){
+					if(usL.getDistance() < OBSTACLE_THRESHOLD || usR.getDistance() < OBSTACLE_THRESHOLD){
 						//cantY = true;
 						if (specialY == -1*SystemConstants.TILE) {
 							specialY = 11*SystemConstants.TILE;
@@ -473,7 +471,8 @@ public class NavigationRoundThree {
 					turnTo(Odometer.convertToDeg(Math.atan2(curY - 1*SystemConstants.TILE - coords.getY(), curX - coords.getX())));
 					RConsole.println("specialY < curY");
 					// replace this with obstacle checking
-					if(usL.getDistance() < 50 || usR.getDistance() < 50){
+					if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+							|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 						//cantY = true;
 						if (specialY == -1*SystemConstants.TILE) {
 							specialY = 11*SystemConstants.TILE;
@@ -495,7 +494,8 @@ public class NavigationRoundThree {
 				if(specialX > curX){
 					turnTo(Odometer.convertToDeg(Math.atan2(curY - coords.getY(), curX + 1*SystemConstants.TILE - coords.getX())));
 					// replace this with obstacle checking
-					if(usL.getDistance() < 50 || usR.getDistance() < 50){
+					if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+							|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 						//cantX = true;
 						if (specialX == -1*SystemConstants.TILE) {
 							specialX = 11*SystemConstants.TILE;
@@ -512,7 +512,8 @@ public class NavigationRoundThree {
 				else{
 					turnTo(Odometer.convertToDeg(Math.atan2(curY - coords.getY(), curX - 1*SystemConstants.TILE - coords.getX())));
 					// replace this with obstacle checking
-					if(usL.getDistance() < 50 || usR.getDistance() < 50){
+					if ((usL.getDistance() < OBSTACLE_THRESHOLD && usL.getDistance() != 4 )
+							|| (usR.getDistance() < OBSTACLE_THRESHOLD && usR.getDistance() != 4)) {
 						//cantX = true;
 						if (specialX == -1*SystemConstants.TILE) {
 							specialX = 11*SystemConstants.TILE;
@@ -543,7 +544,6 @@ public class NavigationRoundThree {
 				destinationReached = true;
 			}*/
 			if (doneX && doneY) {
-				localizer.MidLocalization(odo.getCoordinates().getX(),odo.getCoordinates().getY(), odo.getCoordinates().getTheta());
 				destinationReached = true;
 			}
 		 	
@@ -559,60 +559,85 @@ public class NavigationRoundThree {
 	 * @author Ryan
 	 * 
 	 */
-public void getBall(double x, double y, int orientation){
-		
+	public void getBall(double x, double y, int orientation){
+
 		/*
-		 * From specs:
-		 * {1,2,3,4} corresponds to the cardinal directions N, E, S, W.
-		 *
-		 * Convert orientation to our convention
-		 * 0:E, 1:N, 2:W, 3:S
+		 * From specs: {1,2,3,4} corresponds to the cardinal directions N, E, S, W.
+		 * 
+		 * Convert orientation to our convention 0:E, 1:N, 2:W, 3:S
 		 */
-				
+
 		double startX = x, startY = y;
-		
-		RConsole.println("Dispenser x: "+x);
-		RConsole.println("Dispenser y: "+y);
-				
+		int turnDirection;
+		RConsole.println("Dispenser x: " + x);
+		RConsole.println("Dispenser y: " + y);
+
 		// North
 		if (orientation == 1) {
-			startY = y + 2*SystemConstants.TILE;
+			startY = y + 2 * SystemConstants.TILE;
+			turnDirection = 1;
 		}
 		// East
 		else if (orientation == 2) {
-			startX = x + 2*SystemConstants.TILE;
-			orientation = 0;
+			startX = x + 2 * SystemConstants.TILE;
+			turnDirection = 0;
 		}
 		// South
 		else if (orientation == 3) {
-			startY = y - 2*SystemConstants.TILE;
+			startY = y - 1 * SystemConstants.TILE;
+			turnDirection = 3;
 		}
 		// West
 		else {
-			startX = x - 2*SystemConstants.TILE;
-			orientation = 2;
+			startX = x - 1 * SystemConstants.TILE;
+			turnDirection = 2;
 		}
-		
-		int alignDirection = orientation - 1;
-		if(alignDirection == -1){
-			alignDirection = 3;
-		}
-		
-		//Move to one node away from the dispenser
-		RConsole.println("GoTo: "+startX+", "+startY);
+
+		// Move to one node away from the dispenser
+		RConsole.println("GoTo: " + startX + ", " + startY);
 		GoTo(startX, startY);
 		
-		//Align the back of the robot with the button
-		turnTo(90 * alignDirection);
-		robot.goForward(7,5);
+		localizer.MidLocalization(startX,  startY, odo.getCoordinates().getTheta());
 		
-		turnTo(90 * orientation);
-		
-		robot.goForward(-33,5);
-		for(int i = 0; i < 4; i++){
-			robot.goForward(5,5);
-			robot.goForward(-5,5);
+		//East
+		if(orientation == 2){
+			turnTo(90);
 		}
+		//North
+		else if(orientation == 1){
+			turnTo(0);
+		}
+		//West
+		else if(orientation == 4){
+			turnTo(90);
+		}
+		//South
+		else{
+			turnTo(0);
+		}
+		
+		// Align the back of the robot with the button
+		if(orientation == 2 || orientation == 3){
+			robot.goForward(7,5);
+			RConsole.println("Distance to move: 7");
+		}
+		else if(orientation == 4 || orientation == 1){
+			robot.goForward(23, 5);
+			RConsole.println("Distance to move: 23:");
+		}
+		
+		
+		turnTo(turnDirection * 90);
+
+		robot.goForward(-32, 5);
+		for (int i = 0; i < 2; i++) {
+			robot.goForward(5, 5);
+			robot.goForward(-5, 5);
+		}
+		
+		try{
+			Thread.sleep(500);
+		} catch(Exception e){}
 	}
 
 	/**
@@ -711,7 +736,7 @@ public void getBall(double x, double y, int orientation){
 		boolean leftFree = true;
 
 		turnLeft();
-		leftFree = (us.getDistance() > ObstacleDist);
+		leftFree = (us.getDistance() > OBSTACLE_THRESHOLD);
 		if (leftFree) {
 			navCorrect();
 		} else {
@@ -719,7 +744,7 @@ public void getBall(double x, double y, int orientation){
 			turnRight();
 			// then turn right
 			turnRight();
-			rightFree = (us.getDistance() > ObstacleDist);
+			rightFree = (us.getDistance() > OBSTACLE_THRESHOLD);
 			if (rightFree) {
 				navCorrect();
 			} else {

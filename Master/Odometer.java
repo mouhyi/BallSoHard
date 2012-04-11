@@ -78,9 +78,6 @@ public class Odometer extends Thread {
 				double dTheta = NegativeMap(dHeading);
 				// if(dTheta < 1 || dTheta > 359) dTheta = 0;
 
-				LCD.drawString("dHead " + dHeading + "          ", 0, 3);
-				LCD.drawString("dTheta " + dTheta + "           ", 0, 4);
-
 				dDisplacement = robot.getDisplacement() - displacement; // adjust??
 
 				// Formulas from Tutorial: problem angles sum & /2
